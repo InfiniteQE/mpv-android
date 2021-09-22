@@ -5,7 +5,7 @@ This fork is intended to be used with LitByLeia devices such as the Lume Pad and
 By using this build of MPV Player for Android in combination with [JellyFin for Android](https://github.com/jellyfin/jellyfin-android) You can now stream SBS 3D and 4V content from your PC, Mac or Linux device and view it in 3D/4V right on your LitByLeia device without having to transfer any files manually between devices.
 
 How to use:
-1. Download/Install APK from the [Releases](https://github.com/jakedowns/mpv-android) page
+1. Download/Install APK from the [Releases](https://github.com/jakedowns/mpv-android) page **(NOTE: if you don't like side-loading apps from unknown sources, see: [DIY](#DIY) section below)
 2. Install JellyFin Client for Android, Setup JellyFin server on your PC/Mac/Linux machine which will host your video files
 3. In JellyFin Client for Android Go To: **Settings > Client Settings > Video Player Type** and set it to **External Player**
 4. Then go to **External player app** and select **MPV Player**
@@ -19,3 +19,17 @@ That's it! You should now be seeing your content streaming from your Jelly Media
 If you find this helpful, please consider making a donation here:
 Paypal: [https://paypal.me/fallaciousimpala](https://paypal.me/fallaciousimpala)
 Venmo: [https://venmo.com/jacobdowns3](https://venmo.com/jacobdowns3)
+
+### DIY
+
+1. You build this fork using Android Studio. (Make sure to follow the steps in [/buildscripts/README.md](/buildscripts/README.md))
+
+2.You could also try using the Official MPV Player:
+
+  a. download [/app/src/main/assets/leia2x2.hook.glsl](/app/src/main/assets/leia2x2.hook.glsl) & [app/src/main/assets/leia2x2.hook.glsl](app/src/main/assets/leia2x2.hook.glsl) to `/mpv` in the "External Storage" area of your Android device
+
+  b. In MPV Player; Go to Advanced > Edit mpv.conf
+
+  c. add `glsl-shader="/storage/emulated/0/mpv/leia.hook.glsl` for 2x1 SBS video or `glsl-shader="/storage/emulated/0/mpv/leia2x2.hook.glsl` for 2x2 4V Videos
+
+  d. you'd need some other way to toggle the backlight into 3D mode. Perhaps I'll try pushing a utility to the Play Store that just toggles the 3D mode and leaves it on even when you leave the app. File an issue or hit me up on Twitter if you'd find that useful [https://twitter.com/jakedowns](https://twitter.com/jakedowns)
