@@ -46,11 +46,28 @@ import java.io.OutputStream
 import java.lang.IllegalArgumentException
 import kotlin.math.roundToInt
 
+import com.leia.android.lights.LeiaDisplayManager
+import com.leia.android.lights.LeiaDisplayManager.BacklightMode
+import com.leia.android.lights.LeiaSDK
+import com.leia.android.lights.SimpleDisplayQuery
+import com.leia.android.lights.BacklightModeListener
+import com.leia.android.lights.LeiaDisplayManager.BacklightMode.MODE_2D
+import com.leia.android.lights.LeiaDisplayManager.BacklightMode.MODE_3D
+
 typealias ActivityResultCallback = (Int, Intent?) -> Unit
 typealias StateRestoreCallback = () -> Unit
 typealias ViewPrepareCallback = (View) -> Unit
 
-class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObserver {
+class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObserver, BacklightModeListener {
+    // LitByLeia
+    private var mRenderModeIsLeia3d = false
+    private var mPrevDesiredBacklightModeState = false
+    private val mExpectedBacklightMode: BacklightMode? = null
+    private var mBacklightHasShutDown = false
+    private val mIsDeviceCurrentlyInPortraitMode = false
+    private var mDisplayManager: LeiaDisplayManager? = null
+    private var mLeiaQuery: SimpleDisplayQuery? = null
+
     private val fadeHandler = Handler()
     private val fadeRunnable = FadeOutControlsRunnable(this)
     private val fadeRunnable2 = FadeOutUnlockBtnRunnable(this)
@@ -159,6 +176,11 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
     override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
 
+        // Leia Considerations
+        mLeiaQuery = SimpleDisplayQuery(this)
+        mDisplayManager = LeiaSDK.getDisplayManager(this)
+        mDisplayManager?.registerBacklightModeListener(this)
+
         // Do these here and not in MainActivity because mpv can be launched from a file browser
         copyAssets()
         BackgroundPlaybackService.createNotificationChannel(this)
@@ -251,6 +273,8 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
     override fun onDestroy() {
         Log.v(TAG, "Exiting.")
 
+        Disable3D()
+
         @Suppress("DEPRECATION")
         audioManager?.abandonAudioFocus(audioFocusChangeListener)
 
@@ -265,7 +289,12 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
 
     private fun copyAssets() {
         val assetManager = applicationContext.assets
-        val files = arrayOf("subfont.ttf", "cacert.pem")
+        val files = arrayOf(
+            "subfont.ttf",
+            "cacert.pem",
+            "leia.hook.glsl",
+            "leia2x2.hook.glsl"
+        )
         val configDir = applicationContext.filesDir.path
         for (filename in files) {
             var ins: InputStream? = null
@@ -472,6 +501,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
         val wasPlayerPaused = player.paused ?: true // default to not changing state
         player.paused = true
         return {
+            checkShouldToggle3D(mPrevDesiredBacklightModeState);
             if (!wasPlayerPaused)
                 player.paused = false
         }
@@ -1086,6 +1116,8 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
     fun openTopMenu(view: View) {
         val restoreState = pauseForDialog()
 
+        Disable3D();
+
         /******/
         val hiddenButtons = mutableSetOf<Int>()
         val buttons: MutableList<MenuItem> = mutableListOf(
@@ -1119,6 +1151,15 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
                 MenuItem(R.id.advancedBtn) { openAdvancedMenu(restoreState); false },
                 MenuItem(R.id.statsBtn) {
                     MPVLib.command(arrayOf("script-binding", "stats/display-stats-toggle")); true
+                },
+                MenuItem(R.id.leiaBtn) {
+                    toggleLeiaMode(restoreState,"Off"); false
+                },
+                MenuItem(R.id.leiaBtnSBS) {
+                    toggleLeiaMode(restoreState,"2x1"); false
+                },
+                MenuItem(R.id.leiaBtn2x2) {
+                    toggleLeiaMode(restoreState,"2x2"); false
                 },
                 MenuItem(R.id.orientationBtn) { this.cycleOrientation(); true }
         )
@@ -1161,6 +1202,72 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
 
         picker.number = MPVLib.getPropertyDouble(property)
         dialog.show()
+    }
+
+    private fun toggleLeiaMode(restoreState: StateRestoreCallback?, segment: String) {
+
+        // We read/write to mpv.conf here
+        val configDir = applicationContext.filesDir.path
+        val configFile = File("${configDir}/mpv.conf");
+        var fileText = when (configFile.exists()) {
+            true -> configFile.readText()
+            false -> ""
+        };
+        Log.i(TAG, "mpv.conf: ${fileText}")
+        val containedShader2x1 = fileText.contains("leia.hook.glsl")
+        val containedShader2x2 = fileText.contains("leia2x2.hook.glsl")
+
+        fun removeLineMatching(input: String, matching: String): String{
+            val output = StringBuilder();
+            for(line in fileText.lines()){
+                if(line.contains(matching)){
+                    output.append("")
+                }else{
+                    output.append(line+System.getProperty("line.separator"))
+                }
+            }
+            return output.toString();
+        }
+
+        fun removeShader2x1(fileText: String): String {
+            return removeLineMatching(fileText, "leia.hook.glsl")
+        }
+        fun removeShader2x2(fileText: String): String {
+            return removeLineMatching(fileText, "leia2x2.hook.glsl")
+        }
+        fun addShader(fileText: String, shaderFileName: String): String {
+            val output = StringBuilder(fileText);
+            output.append("glsl-shader=\"${configDir}/${shaderFileName}\"")
+            return output.toString();
+        }
+
+        when(segment){
+            "Off" -> {
+                mPrevDesiredBacklightModeState = false;
+//                fileText = removeShader2x1(fileText)
+//                fileText = removeShader2x2(fileText)
+            }
+            "2x1" -> {
+                mPrevDesiredBacklightModeState = true
+                // toggle 2x1
+                if(!containedShader2x1){
+                    fileText = removeShader2x2(fileText)
+                    fileText = addShader(fileText, "leia.hook.glsl")
+                }
+            }
+            "2x2" -> {
+                mPrevDesiredBacklightModeState = true
+                // toggle 2x2
+                if(!containedShader2x2){
+                    fileText = removeShader2x1(fileText)
+                    fileText = addShader(fileText, "leia2x2.hook.glsl")
+                }
+            }
+        }
+        // Write FileText Back to Disk
+        configFile.writeText(fileText)
+        checkShouldToggle3D(mPrevDesiredBacklightModeState);
+        restoreState?.invoke()
     }
 
     private fun openAdvancedMenu(restoreState: StateRestoreCallback) {
@@ -1674,6 +1781,45 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
         private const val RCODE_LOAD_FILE = 1002
         // action of result intent
         private const val RESULT_INTENT = "is.xyz.mpv.MPVActivity.result"
+    }
+
+    /** BacklightModeListener Interface requirement  */
+    override fun onBacklightModeChanged(backlightMode: BacklightMode) {
+        //Log.e("EmulationActivity", "onBacklightModeChanged: callback received");
+        // Do something to remember the backlight is no longer on
+        // Later, we have to let the native side know this occurred.
+        if (mExpectedBacklightMode == MODE_3D &&
+            mExpectedBacklightMode != backlightMode
+        ) {
+            //Log.e("EmulationActivity", "onBacklightModeChanged: mBacklightHasShutDown = true;");
+            mBacklightHasShutDown = true
+        }
+    }
+
+    fun Enable3D() {
+        mDisplayManager?.backlightMode = MODE_3D
+    }
+
+    fun Disable3D() {
+        mDisplayManager?.backlightMode = MODE_2D
+    }
+
+    private fun SetBacklightMode(mode: BacklightMode) {
+        mDisplayManager?.backlightMode = mode
+    }
+
+    fun HasBacklightShutdown(): Int {
+        //Log.e("EmulationActivity", "HasBacklightShutdown: mBacklightHasShutDown = " + mBacklightHasShutDown);
+        return if (mBacklightHasShutDown) 1 else 0
+    }
+
+    fun checkShouldToggle3D(desired_state: Boolean) {
+        if (desired_state) {
+            Enable3D()
+        } else {
+            Disable3D()
+        }
+        mPrevDesiredBacklightModeState = desired_state
     }
 }
 

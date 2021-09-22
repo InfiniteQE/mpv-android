@@ -1,0 +1,21 @@
+# mpv for Android w/ LitByLeia Support
+
+This fork is intended to be used with LitByLeia devices such as the Lume Pad and the RED Hydrogen One
+
+By using this build of MPV Player for Android in combination with [JellyFin for Android](https://github.com/jellyfin/jellyfin-android) You can now stream SBS 3D and 4V content from your PC, Mac or Linux device and view it in 3D/4V right on your LitByLeia device without having to transfer any files manually between devices.
+
+How to use:
+1. Download/Install APK from the [Releases](https://github.com/jakedowns/mpv-android) page
+2. Install JellyFin Client for Android, Setup JellyFin server on your PC/Mac/Linux machine which will host your video files
+3. In JellyFin Client for Android Go To: **Settings > Client Settings > Video Player Type** and set it to **External Player**
+4. Then go to **External player app** and select **MPV Player**
+5. Select a 3D video and hit play. It should open in MPV Player. Tap the screen once and press the Gear Icon in the top right corner of the screen.
+6. Press "Leia3D 2x1" or "Leia3d 2x2" depending on the content you are viewing.
+7. Finally, (working on a fix for this) but you need to "back" out of the video player, then re-tap Play.
+
+That's it! You should now be seeing your content streaming from your Jelly Media Server in glorious 3D or 4V!
+
+### Donations Greatly Appreciated
+If you find this helpful, please consider making a donation here:
+Paypal: [https://paypal.me/fallaciousimpala](https://paypal.me/fallaciousimpala)
+Venmo: [https://venmo.com/jacobdowns3](https://venmo.com/jacobdowns3)
