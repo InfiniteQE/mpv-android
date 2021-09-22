@@ -1,4 +1,4 @@
-# mpv for Android
+# MPV 4V w/ LitByLeia Support
 
 # This is a Special Fork: see [README-LitByLeia.md](README-LitByLeia.md)
 
