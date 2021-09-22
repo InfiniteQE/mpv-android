@@ -5,7 +5,7 @@ This fork is intended to be used with LitByLeia devices such as the Lume Pad and
 By using this build of MPV Player for Android in combination with [JellyFin for Android](https://github.com/jellyfin/jellyfin-android) You can now stream SBS 3D and 4V content from your PC, Mac or Linux device and view it in 3D/4V right on your LitByLeia device without having to transfer any files manually between devices.
 
 How to use:
-1. Download/Install APK from the [Releases](https://github.com/jakedowns/mpv-android) page **(NOTE: if you don't like side-loading apps from unknown sources, see: [DIY](#DIY) section below)
+1. Download/Install APK from the [Releases](https://github.com/jakedowns/mpv-android/releases) page **(NOTE: if you don't like side-loading apps from unknown sources, see: [DIY](#DIY) section below)
 2. Install JellyFin Client for Android, Setup JellyFin server on your PC/Mac/Linux machine which will host your video files
 3. In JellyFin Client for Android Go To: **Settings > Client Settings > Video Player Type** and set it to **External Player**
 4. Then go to **External player app** and select **MPV Player**
