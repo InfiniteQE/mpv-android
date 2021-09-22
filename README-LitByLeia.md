@@ -11,7 +11,6 @@ How to use:
 4. Then go to **External player app** and select **MPV Player**
 5. Select a 3D video and hit play. It should open in MPV Player. Tap the screen once and press the Gear Icon in the top right corner of the screen.
 6. Press "Leia3D 2x1" or "Leia3d 2x2" depending on the content you are viewing.
-7. Finally, (working on a fix for this) but you need to "back" out of the video player, then re-tap Play.
 
 That's it! You should now be seeing your content streaming from your Jelly Media Server in glorious 3D or 4V!
 

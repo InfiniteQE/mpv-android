@@ -769,6 +769,8 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
     }
 
     override fun onBackPressed() {
+        Disable3D()
+
         if (lockedUI)
             return showUnlockControls()
 
@@ -1205,67 +1207,25 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
     }
 
     private fun toggleLeiaMode(restoreState: StateRestoreCallback?, segment: String) {
-
-        // We read/write to mpv.conf here
-        val configDir = applicationContext.filesDir.path
-        val configFile = File("${configDir}/mpv.conf");
-        var fileText = when (configFile.exists()) {
-            true -> configFile.readText()
-            false -> ""
-        };
-        Log.i(TAG, "mpv.conf: ${fileText}")
-        val containedShader2x1 = fileText.contains("leia.hook.glsl")
-        val containedShader2x2 = fileText.contains("leia2x2.hook.glsl")
-
-        fun removeLineMatching(input: String, matching: String): String{
-            val output = StringBuilder();
-            for(line in fileText.lines()){
-                if(line.contains(matching)){
-                    output.append("")
-                }else{
-                    output.append(line+System.getProperty("line.separator"))
-                }
-            }
-            return output.toString();
-        }
-
-        fun removeShader2x1(fileText: String): String {
-            return removeLineMatching(fileText, "leia.hook.glsl")
-        }
-        fun removeShader2x2(fileText: String): String {
-            return removeLineMatching(fileText, "leia2x2.hook.glsl")
-        }
-        fun addShader(fileText: String, shaderFileName: String): String {
-            val output = StringBuilder(fileText);
-            output.append("glsl-shader=\"${configDir}/${shaderFileName}\"")
-            return output.toString();
-        }
+        val filesDir = applicationContext.filesDir.path
+        MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia.hook.glsl"))
+        MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia2x2.hook.glsl"))
 
         when(segment){
             "Off" -> {
                 mPrevDesiredBacklightModeState = false;
-//                fileText = removeShader2x1(fileText)
-//                fileText = removeShader2x2(fileText)
             }
             "2x1" -> {
                 mPrevDesiredBacklightModeState = true
                 // toggle 2x1
-                if(!containedShader2x1){
-                    fileText = removeShader2x2(fileText)
-                    fileText = addShader(fileText, "leia.hook.glsl")
-                }
+                MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia.hook.glsl"))
             }
             "2x2" -> {
                 mPrevDesiredBacklightModeState = true
                 // toggle 2x2
-                if(!containedShader2x2){
-                    fileText = removeShader2x1(fileText)
-                    fileText = addShader(fileText, "leia2x2.hook.glsl")
-                }
+                MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x2.hook.glsl"))
             }
         }
-        // Write FileText Back to Disk
-        configFile.writeText(fileText)
         checkShouldToggle3D(mPrevDesiredBacklightModeState);
         restoreState?.invoke()
     }
