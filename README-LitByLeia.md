@@ -23,7 +23,7 @@ Venmo: [https://venmo.com/jacobdowns3](https://venmo.com/jacobdowns3)
 
 1. You build this fork using Android Studio. (Make sure to follow the steps in [/buildscripts/README.md](/buildscripts/README.md))
 
-2.You could also try using the Official MPV Player:
+2. You could also try using the Official MPV Player:
 
   a. download [/app/src/main/assets/leia2x2.hook.glsl](/app/src/main/assets/leia2x2.hook.glsl) & [app/src/main/assets/leia2x2.hook.glsl](app/src/main/assets/leia2x2.hook.glsl) to `/mpv` in the "External Storage" area of your Android device
 
@@ -31,4 +31,5 @@ Venmo: [https://venmo.com/jacobdowns3](https://venmo.com/jacobdowns3)
 
   c. add `glsl-shader="/storage/emulated/0/mpv/leia.hook.glsl` for 2x1 SBS video or `glsl-shader="/storage/emulated/0/mpv/leia2x2.hook.glsl` for 2x2 4V Videos
 
-  d. you'd need some other way to toggle the backlight into 3D mode. Perhaps I'll try pushing a utility to the Play Store that just toggles the 3D mode and leaves it on even when you leave the app. File an issue or hit me up on Twitter if you'd find that useful [https://twitter.com/jakedowns](https://twitter.com/jakedowns)
+  d. you'd need some other way to toggle the backlight into 3D mode. like the web helper app from leia
+     see https://docs.leialoft.com/developer/webgl-sdk/leia-webgl-sdk
