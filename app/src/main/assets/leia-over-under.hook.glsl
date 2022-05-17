@@ -4,7 +4,7 @@
 
 vec4 myColor;
 vec2 pos;
-float halfX;
+float halfY;
 float viewID;
 
 vec4 hook(){
