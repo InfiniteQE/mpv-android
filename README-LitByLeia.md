@@ -15,8 +15,13 @@ How to use:
 That's it! You should now be seeing your content streaming from your Jelly Media Server in glorious 3D or 4V!
 
 ### Donations Greatly Appreciated
+
 If you find this helpful, please consider making a donation here:
+
+Patreon: [https://patreon.com/jakedowns](https://patreon.com/jakedowns)
+
 Paypal: [https://paypal.me/fallaciousimpala](https://paypal.me/fallaciousimpala)
+
 Venmo: [https://venmo.com/jacobdowns3](https://venmo.com/jacobdowns3)
 
 ### DIY
@@ -25,11 +30,19 @@ Venmo: [https://venmo.com/jacobdowns3](https://venmo.com/jacobdowns3)
 
 2. You could also try using the Official MPV Player:
 
-  a. download [/app/src/main/assets/leia2x2.hook.glsl](/app/src/main/assets/leia2x2.hook.glsl) & [app/src/main/assets/leia2x2.hook.glsl](app/src/main/assets/leia2x2.hook.glsl) to `/mpv` in the "External Storage" area of your Android device
+  a. download 
+     - [/app/src/main/assets/leia2x2.hook.glsl](/app/src/main/assets/leia2x2.hook.glsl) 
+     - [app/src/main/assets/leia2x2.hook.glsl](app/src/main/assets/leia2x2.hook.glsl) 
+     - [app/src/main/assets/leia-over-under.hook.glsl](app/src/main/assets/leia-over-under.hook.glsl) 
+     to `/mpv` in the "External Storage" area of your Android device
 
   b. In MPV Player; Go to Advanced > Edit mpv.conf
 
-  c. add `glsl-shader="/storage/emulated/0/mpv/leia.hook.glsl` for 2x1 SBS video or `glsl-shader="/storage/emulated/0/mpv/leia2x2.hook.glsl` for 2x2 4V Videos
+  c. add `glsl-shader="/storage/emulated/0/mpv/leia.hook.glsl` for 2x1 SBS video 
+  
+     or `glsl-shader="/storage/emulated/0/mpv/leia2x2.hook.glsl` for 2x2 4V Videos
+     
+     or `glsl-shader="/storage/emulated/0/mpv/leia-over-under.hook.glsl` for 2x1 OU (Over Under) / TB (Top Bottom) videos
 
   d. you'd need some other way to toggle the backlight into 3D mode. like the web helper app from leia
      see https://docs.leialoft.com/developer/webgl-sdk/leia-webgl-sdk
