@@ -175,4 +175,6 @@
     <string name="toggle_leia">Leia3D Off</string>
     <string name="toggle_leia_2x2">Leia3D 2x2</string>
     <string name="toggle_leia_2x1">Leia3D 2x1</string>
+    <string name="toggle_leia_OU">Leia3D OU Over(L)/Under(R)</string>
+    <string name="toggle_leia_UO">Leia3D UO Under(L)/Over(R)</string>
 </resources>

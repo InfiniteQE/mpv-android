@@ -293,7 +293,8 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
             "subfont.ttf",
             "cacert.pem",
             "leia.hook.glsl",
-            "leia2x2.hook.glsl"
+            "leia2x2.hook.glsl",
+            "leia-over-under.hook.glsl"
         )
         val configDir = applicationContext.filesDir.path
         for (filename in files) {
@@ -1163,6 +1164,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
                 MenuItem(R.id.leiaBtn2x2) {
                     toggleLeiaMode(restoreState,"2x2"); false
                 },
+                MenuItem(R.id.leiaBtnOU) {
+                    toggleLeiaMode(restoreState,"OU"); false
+                },
                 MenuItem(R.id.orientationBtn) { this.cycleOrientation(); true }
         )
 
@@ -1210,6 +1214,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
         val filesDir = applicationContext.filesDir.path
         MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia.hook.glsl"))
         MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia2x2.hook.glsl"))
+        MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia-over-under.hook.glsl"))
 
         when(segment){
             "Off" -> {
@@ -1224,6 +1229,11 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
                 mPrevDesiredBacklightModeState = true
                 // toggle 2x2
                 MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x2.hook.glsl"))
+            }
+            "OU" -> {
+                mPrevDesiredBacklightModeState = true
+                // toggle OU
+                MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia-over-under.hook.glsl"))
             }
         }
         checkShouldToggle3D(mPrevDesiredBacklightModeState);
