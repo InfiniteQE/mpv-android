@@ -18,6 +18,8 @@ That's it! You should now be seeing your content streaming from your Jelly Media
 
 If you find this helpful, please consider making a donation here:
 
+Ko-Fi: [https://ko-fi.com/jakedowns](https://ko-fi.com/jakedowns)
+
 Patreon: [https://patreon.com/jakedowns](https://patreon.com/jakedowns)
 
 Paypal: [https://paypal.me/fallaciousimpala](https://paypal.me/fallaciousimpala)
