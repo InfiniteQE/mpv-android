@@ -42,7 +42,7 @@
     <string name="switch_orientation">画面方向の切替</string>
     <string name="open_external_audio">外部オーディオファイルを読み込む…</string>
     <string name="open_external_sub">外部字幕ファイルを読み込む…</string>
-    <string name="playlist_append">プレイリストに追加…</string>
+    <string name="action_playlist">プレイリスト</string>
     <string name="advanced_menu">詳細設定…</string>
     <string name="resume_bg_playback">バックグラウンドで再生</string>
     <string name="toggle_stats">統計情報の表示切替</string>
@@ -56,6 +56,7 @@
 
     <!-- Strings related to Settings -->
     <string name="pref_header_general">一般</string>
+    <string name="pref_header_ui">ユーザーインターフェース</string>
 
     <string name="pref_default_file_manager_path_title">デフォルトのファイルマネージャのパス</string>
     <string name="pref_default_file_manager_path_hint">ファイルマネージャ起動時に開くフォルダを設定</string>   <!-- is not used? -->
@@ -115,20 +116,20 @@
 
     <string name="pref_header_developer">開発者用</string>
 
-    <string name="pref_developer_stats_title">統計情報を表示</string>
-    <string name="pref_developer_stats_summary">どの統計情報を表示するか選択</string>
+    <string name="pref_stats_mode_title">統計情報を表示</string>
+    <string name="pref_stats_mode_summary">どの統計情報を表示するか選択</string>
 
-    <string name="pref_developer_gpudebug_title">OpenGLデバッグを有効化</string>
+    <string name="pref_gpu_debug_title">OpenGLデバッグを有効化</string>
 
     <string name="pref_header_advanced">詳細設定</string>
 
-    <string name="pref_advanced_version">バージョン情報</string>
+    <string name="pref_version_info">バージョン情報</string>
 
-    <string name="pref_advanced_mpvconf">mpv.confを編集</string>
-    <string name="pref_advanced_mpvconf_message">mpvの設定ファイルを直接編集できます</string>
+    <string name="pref_edit_mpv_conf">mpv.confを編集</string>
+    <string name="pref_edit_mpv_conf_message">mpvの設定ファイルを直接編集できます</string>
 
-    <string name="pref_advanced_inputconf">input.confを編集</string>
-    <string name="pref_advanced_inputconf_message">input.confを編集できます。これは主にAndroidTVやキーボード接続用です。\n\n重要:mpv-androidではいくつかキーがハードコードされていて変更できません。例:\"j\"(次の字幕)</string>
+    <string name="pref_edit_input_conf">input.confを編集</string>
+    <string name="pref_edit_input_conf_message">input.confを編集できます。これは主にAndroidTVやキーボード接続用です。\n\n重要:mpv-androidではいくつかキーがハードコードされていて変更できません。例:\"j\"(次の字幕)</string>
 
     <!-- Strings used in Settings dialog preferences -->
     <string name="scaler_param1">パラメータ1:</string>
@@ -139,11 +140,10 @@
     <!-- File picker -->
     <string name="nnf_name">名前</string>
     <string name="nnf_permission_external_write_denied">外部ストレージに書き込み権限がありません</string>
-    <string name="nnf_filename">ファイル名</string>
     <string name="aspect_ratio">アスペクト比</string>
     <string name="pref_display_media_title_title">タイトルを表示</string>
     <string name="pref_display_media_title_summary">コントロール上にビデオのタイトル(またはファイル名)を表示します。オーディオの場合はタイトル/アーティスト名/アルバム名を表示します</string>
     <string name="pref_bottom_controls_title">コントロールを画面の一番下に表示</string>
-    <string name="pref_developer_ignore_audio_focus_summary">ほかのアプリが音声出力した際に再生を一時停止または音量を下げることをしない</string>
-    <string name="pref_developer_ignore_audio_focus_title">音声フォーカスを無視</string>
+    <string name="pref_ignore_audio_focus_summary">ほかのアプリが音声出力した際に再生を一時停止または音量を下げることをしない</string>
+    <string name="pref_ignore_audio_focus_title">音声フォーカスを無視</string>
 </resources>

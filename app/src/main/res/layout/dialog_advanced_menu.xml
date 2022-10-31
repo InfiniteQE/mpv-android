@@ -76,7 +76,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@color/nnf_light_separator_color"
+                android:background="@drawable/alpha_darken"
                 android:text="@string/dialog_prev"
                 android:textAllCaps="false" />
 
@@ -86,44 +86,53 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@color/nnf_light_separator_color"
+                android:background="@drawable/alpha_darken"
                 android:text="@string/dialog_next"
                 android:textAllCaps="false" />
 
         </TableRow>
 
         <TableRow
-            android:id="@+id/rowChapter"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <Button
-                android:id="@+id/chapterBtn"
+                android:id="@+id/statsBtn"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="4"
-                android:text="@string/chapter_button"
+                android:text="@string/toggle_stats"
                 android:textAllCaps="false" />
 
             <Button
-                android:id="@+id/chapterPrev"
+                android:id="@+id/statsBtn1"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@color/nnf_light_separator_color"
-                android:text="@string/dialog_prev"
+                android:background="@drawable/alpha_darken"
+                android:text="1"
                 android:textAllCaps="false" />
 
             <Button
-                android:id="@+id/chapterNext"
+                android:id="@+id/statsBtn2"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@color/nnf_light_separator_color"
-                android:text="@string/dialog_next"
+                android:background="@drawable/alpha_darken"
+                android:text="2"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/statsBtn3"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/alpha_darken"
+                android:text="3"
                 android:textAllCaps="false" />
 
         </TableRow>
@@ -159,30 +168,6 @@
             android:layout_height="wrap_content"
             android:text="@string/aspect_ratio"
             android:textAllCaps="false" />
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                android:id="@+id/shuffleBtn"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/shuffle"
-                android:textAllCaps="false" />
-
-            <Button
-                android:id="@+id/repeatBtn"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/repeat"
-                android:textAllCaps="false" />
-
-        </TableRow>
 
     </LinearLayout>
 

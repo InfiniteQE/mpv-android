@@ -32,7 +32,7 @@ internal class MPVView(context: Context, attrs: AttributeSet) : SurfaceView(cont
 
         // hwdec
         val hwdec = if (sharedPreferences.getBoolean("hardware_decoding", true))
-            "mediacodec-copy"
+            "auto"
         else
             "no"
 
@@ -108,12 +108,16 @@ internal class MPVView(context: Context, attrs: AttributeSet) : SurfaceView(cont
         MPVLib.setOptionString("tls-verify", "yes")
         MPVLib.setOptionString("tls-ca-file", "${this.context.filesDir.path}/cacert.pem")
         MPVLib.setOptionString("input-default-bindings", "yes")
-        // Limit demuxer cache to 32 MiB, the default is too high for mobile devices
-        MPVLib.setOptionString("demuxer-max-bytes", "${32 * 1024 * 1024}")
-        MPVLib.setOptionString("demuxer-max-back-bytes", "${32 * 1024 * 1024}")
+        // Limit demuxer cache since the defaults are too high for mobile devices
+        val cacheMegs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) 64 else 32
+        MPVLib.setOptionString("demuxer-max-bytes", "${cacheMegs * 1024 * 1024}")
+        MPVLib.setOptionString("demuxer-max-back-bytes", "${cacheMegs * 1024 * 1024}")
+        //
         val screenshotDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
         screenshotDir.mkdirs()
         MPVLib.setOptionString("screenshot-directory", screenshotDir.path)
+        // DR is known to ruin performance at least on Exynos devices, see #508
+        MPVLib.setOptionString("vd-lavc-dr", "no")
     }
 
     fun playFile(filePath: String) {
@@ -180,20 +184,23 @@ internal class MPVView(context: Context, attrs: AttributeSet) : SurfaceView(cont
     }
 
     private fun observeProperties() {
-        // This observes all properties needed by MPVView or MPVActivity
-        data class Property(val name: String, val format: Int)
+        // This observes all properties needed by MPVView, MPVActivity or other classes
+        data class Property(val name: String, val format: Int = MPV_FORMAT_NONE)
         val p = arrayOf(
-                Property("time-pos", MPV_FORMAT_INT64),
-                Property("duration", MPV_FORMAT_INT64),
-                Property("pause", MPV_FORMAT_FLAG),
-                Property("track-list", MPV_FORMAT_NONE),
-                Property("video-params", MPV_FORMAT_NONE),
-                Property("playlist-pos", MPV_FORMAT_NONE),
-                Property("playlist-count", MPV_FORMAT_NONE),
-                Property("video-format", MPV_FORMAT_NONE),
-                Property("media-title", MPV_FORMAT_STRING),
-                Property("metadata/by-key/Artist", MPV_FORMAT_STRING),
-                Property("metadata/by-key/Album", MPV_FORMAT_STRING)
+            Property("time-pos", MPV_FORMAT_INT64),
+            Property("duration", MPV_FORMAT_INT64),
+            Property("pause", MPV_FORMAT_FLAG),
+            Property("track-list"),
+            Property("video-params"),
+            Property("playlist-pos", MPV_FORMAT_INT64),
+            Property("playlist-count", MPV_FORMAT_INT64),
+            Property("video-format"),
+            Property("media-title", MPV_FORMAT_STRING),
+            Property("metadata/by-key/Artist", MPV_FORMAT_STRING),
+            Property("metadata/by-key/Album", MPV_FORMAT_STRING),
+            Property("loop-playlist"),
+            Property("loop-file"),
+            Property("shuffle", MPV_FORMAT_FLAG),
         )
 
         for ((name, format) in p)
@@ -245,19 +252,15 @@ internal class MPVView(context: Context, attrs: AttributeSet) : SurfaceView(cont
         }
     }
 
-    data class PlaylistFile(val index: Int, val name: String)
+    data class PlaylistItem(val index: Int, val filename: String, val title: String?)
 
-    fun loadPlaylist(): MutableList<PlaylistFile> {
-        val playlist: MutableList<PlaylistFile> = mutableListOf()
+    fun loadPlaylist(): MutableList<PlaylistItem> {
+        val playlist = mutableListOf<PlaylistItem>()
         val count = MPVLib.getPropertyInt("playlist-count")!!
         for (i in 0 until count) {
-            val filename = Utils.fileBasename(
-                    MPVLib.getPropertyString("playlist/$i/filename")!!)
+            val filename = MPVLib.getPropertyString("playlist/$i/filename")!!
             val title = MPVLib.getPropertyString("playlist/$i/title")
-            playlist.add(PlaylistFile(
-                    index=i,
-                    name=title ?: filename
-            ))
+            playlist.add(PlaylistItem(index=i, filename=filename, title=title))
         }
         return playlist
     }
@@ -287,15 +290,12 @@ internal class MPVView(context: Context, attrs: AttributeSet) : SurfaceView(cont
         get() = MPVLib.getPropertyBoolean("pause")
         set(paused) = MPVLib.setPropertyBoolean("pause", paused!!)
 
-    val duration: Int?
-        get() = MPVLib.getPropertyInt("duration")
-
     var timePos: Int?
         get() = MPVLib.getPropertyInt("time-pos")
         set(progress) = MPVLib.setPropertyInt("time-pos", progress!!)
 
-    val hwdecActive: Boolean
-        get() = (MPVLib.getPropertyString("hwdec-current") ?: "no") != "no"
+    val hwdecActive: String
+        get() = MPVLib.getPropertyString("hwdec-current") ?: "no"
 
     var playbackSpeed: Double?
         get() = MPVLib.getPropertyDouble("speed")
@@ -304,41 +304,11 @@ internal class MPVView(context: Context, attrs: AttributeSet) : SurfaceView(cont
     val filename: String?
         get() = MPVLib.getPropertyString("filename")
 
-    val avsync: String?
-        get() = MPVLib.getPropertyString("avsync")
-
-    val decoderFrameDropCount: Int?
-        get() = MPVLib.getPropertyInt("decoder-frame-drop-count")
-
-    val frameDropCount: Int?
-        get() = MPVLib.getPropertyInt("frame-drop-count")
-
-    val containerFps: Double?
-        get() = MPVLib.getPropertyDouble("container-fps")
-
     val estimatedVfFps: Double?
         get() = MPVLib.getPropertyDouble("estimated-vf-fps")
 
-    val videoW: Int?
-        get() = MPVLib.getPropertyInt("video-params/w")
-
-    val videoH: Int?
-        get() = MPVLib.getPropertyInt("video-params/h")
-
     val videoAspect: Double?
         get() = MPVLib.getPropertyDouble("video-params/aspect")
-
-    val videoCodec: String?
-        get() = MPVLib.getPropertyString("video-codec")
-
-    val audioCodec: String?
-        get() = MPVLib.getPropertyString("audio-codec")
-
-    val audioSampleRate: Int?
-        get() = MPVLib.getPropertyInt("audio-params/samplerate")
-
-    val audioChannels: Int?
-        get() = MPVLib.getPropertyInt("audio-params/channel-count")
 
     class TrackDelegate {
         operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
@@ -363,13 +333,48 @@ internal class MPVView(context: Context, attrs: AttributeSet) : SurfaceView(cont
     fun cyclePause() = MPVLib.command(arrayOf("cycle", "pause"))
     fun cycleAudio() = MPVLib.command(arrayOf("cycle", "audio"))
     fun cycleSub() = MPVLib.command(arrayOf("cycle", "sub"))
-    fun cycleHwdec() = MPVLib.command(arrayOf("cycle-values", "hwdec", "mediacodec-copy", "no"))
+    fun cycleHwdec() = MPVLib.command(arrayOf("cycle-values", "hwdec", "auto", "no"))
 
     fun cycleSpeed() {
         val speeds = arrayOf(0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0)
         val currentSpeed = playbackSpeed ?: 1.0
         val index = speeds.indexOfFirst { it > currentSpeed }
         playbackSpeed = speeds[if (index == -1) 0 else index]
+    }
+
+    fun getRepeat(): Int {
+        return when (MPVLib.getPropertyString("loop-playlist") +
+                MPVLib.getPropertyString("loop-file")) {
+            "noinf" -> 2
+            "infno" -> 1
+            else -> 0
+        }
+    }
+
+    fun cycleRepeat() {
+        val state = getRepeat()
+        when (state) {
+            0, 1 -> {
+                MPVLib.setPropertyString("loop-playlist", if (state == 1) "no" else "inf")
+                MPVLib.setPropertyString("loop-file", if (state == 1) "inf" else "no")
+            }
+            2 -> MPVLib.setPropertyString("loop-file", "no")
+        }
+    }
+
+    fun getShuffle(): Boolean {
+        return MPVLib.getPropertyBoolean("shuffle")
+    }
+
+    fun changeShuffle(cycle: Boolean, value: Boolean = true) {
+        // Use the 'shuffle' property to store the shuffled state, since changing
+        // it at runtime doesn't do anything.
+        val state = getShuffle()
+        val newState = if (cycle) state.xor(value) else value
+        if (state == newState)
+            return
+        MPVLib.command(arrayOf(if (newState) "playlist-shuffle" else "playlist-unshuffle"))
+        MPVLib.setPropertyBoolean("shuffle", newState)
     }
 
     // Surface callbacks
