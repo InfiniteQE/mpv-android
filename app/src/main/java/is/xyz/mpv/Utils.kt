@@ -26,7 +26,11 @@ import kotlin.math.abs
 object Utils {
     fun copyAssets(context: Context) {
         val assetManager = context.assets
-        val files = arrayOf("subfont.ttf", "cacert.pem")
+        val files = arrayOf("subfont.ttf",
+            "cacert.pem",
+            "leia.hook.glsl",
+            "leia2x2.hook.glsl",
+            "leia-over-under.hook.glsl")
         val configDir = context.filesDir.path
         for (filename in files) {
             var ins: InputStream? = null

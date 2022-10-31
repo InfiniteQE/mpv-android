@@ -12,6 +12,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.content.res.AssetManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.drawable.Icon
@@ -34,7 +35,6 @@ import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import java.io.File
 import java.lang.IllegalArgumentException
 import kotlin.math.roundToInt
 
@@ -45,6 +45,11 @@ import com.leia.android.lights.SimpleDisplayQuery
 import com.leia.android.lights.BacklightModeListener
 import com.leia.android.lights.LeiaDisplayManager.BacklightMode.MODE_2D
 import com.leia.android.lights.LeiaDisplayManager.BacklightMode.MODE_3D
+import java.io.FileOutputStream
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 
 typealias ActivityResultCallback = (Int, Intent?) -> Unit
 typealias StateRestoreCallback = () -> Unit
@@ -335,40 +340,6 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
         player.removeObserver(this)
         player.destroy()
         super.onDestroy()
-    }
-
-    private fun copyAssets() {
-        val assetManager = applicationContext.assets
-        val files = arrayOf(
-            "subfont.ttf",
-            "cacert.pem",
-            "leia.hook.glsl",
-            "leia2x2.hook.glsl",
-            "leia-over-under.hook.glsl"
-        )
-        val configDir = applicationContext.filesDir.path
-        for (filename in files) {
-            var ins: InputStream? = null
-            var out: OutputStream? = null
-            try {
-                ins = assetManager.open(filename, AssetManager.ACCESS_STREAMING)
-                val outFile = File("$configDir/$filename")
-                // Note that .available() officially returns an *estimated* number of bytes available
-                // this is only true for generic streams, asset streams return the full file size
-                if (outFile.length() == ins.available().toLong()) {
-                    Log.w(TAG, "Skipping copy of asset file (exists same size): $filename")
-                    continue
-                }
-                out = FileOutputStream(outFile)
-                ins.copyTo(out)
-                Log.w(TAG, "Copied asset file: $filename")
-            } catch (e: IOException) {
-                Log.e(TAG, "Failed to copy asset file: $filename", e)
-            } finally {
-                ins?.close()
-                out?.close()
-            }
-        }
     }
 
     override fun onNewIntent(intent: Intent?) {
