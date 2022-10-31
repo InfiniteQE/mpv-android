@@ -34,7 +34,7 @@ Venmo: [https://venmo.com/jacobdowns3](https://venmo.com/jacobdowns3)
 
   a. download these 3 shader files to `/mpv` in the "External Storage" area of your Android device
     
-   i [app/src/main/assets/leia2x2.hook.glsl](app/src/main/assets/leia2x2.hook.glsl) 
+   i [app/src/main/assets/leia2x1.hook.glsl](app/src/main/assets/leia2x1.hook.glsl) 
     
    ii [app/src/main/assets/leia2x2.hook.glsl](app/src/main/assets/leia2x2.hook.glsl) 
     
