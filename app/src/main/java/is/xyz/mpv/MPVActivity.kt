@@ -1131,7 +1131,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
 
         for (button in buttons) {
             val buttonView = dialogView.findViewById<Button>(button.idRes)
-            buttonView.setOnClickListener {
+            buttonView?.setOnClickListener {
                 val ret = button.handler()
                 if (ret) // restore state immediately
                     restoreState()
