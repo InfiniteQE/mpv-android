@@ -46,10 +46,12 @@ Venmo: [https://venmo.com/jacobdowns3](https://venmo.com/jacobdowns3)
 
   c. add one of the following depending on the media you're watching:
    
-   - `glsl-shader="/storage/emulated/0/mpv/leia.hook.glsl` for 2x1 SBS video 
-  
+   - `glsl-shader="/storage/emulated/0/mpv/leia2x1-full.hook.glsl` for 2x1 SBS video
+
+   - `glsl-shader="/storage/emulated/0/mpv/leia2x1-half.hook.glsl` for 2x1 SBS video
+
    - `glsl-shader="/storage/emulated/0/mpv/leia2x2.hook.glsl` for 2x2 4V Videos
-     
+
    - `glsl-shader="/storage/emulated/0/mpv/leia-over-under.hook.glsl` for 2x1 OU (Over Under) / TB (Top Bottom) videos
 
   d. you'd need some other way to toggle the backlight into 3D mode. like the web helper app from leia

@@ -292,7 +292,8 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
         val files = arrayOf(
             "subfont.ttf",
             "cacert.pem",
-            "leia.hook.glsl",
+            "leia2x1-full.hook.glsl",
+            "leia2x1-half.hook.glsl",
             "leia2x2.hook.glsl",
             "leia-over-under.hook.glsl"
         )
@@ -305,10 +306,10 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
                 val outFile = File("$configDir/$filename")
                 // Note that .available() officially returns an *estimated* number of bytes available
                 // this is only true for generic streams, asset streams return the full file size
-                if (outFile.length() == ins.available().toLong()) {
-                    Log.w(TAG, "Skipping copy of asset file (exists same size): $filename")
-                    continue
-                }
+//                if (outFile.length() == ins.available().toLong()) {
+//                    Log.w(TAG, "Skipping copy of asset file (exists same size): $filename")
+//                    continue
+//                }
                 out = FileOutputStream(outFile)
                 ins.copyTo(out)
                 Log.w(TAG, "Copied asset file: $filename")
@@ -1159,8 +1160,11 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
                     toggleLeiaMode(restoreState,"Off"); false
                 },
                 MenuItem(R.id.leiaBtnSBS) {
-                    toggleLeiaMode(restoreState,"2x1"); false
+                    toggleLeiaMode(restoreState,"2x1f"); false
                 },
+//                MenuItem(R.id.leiaBtnHBS) {
+//                    toggleLeiaMode(restoreState,"2x1h"); false
+//                },
                 MenuItem(R.id.leiaBtn2x2) {
                     toggleLeiaMode(restoreState,"2x2"); false
                 },
@@ -1212,7 +1216,8 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
 
     private fun toggleLeiaMode(restoreState: StateRestoreCallback?, segment: String) {
         val filesDir = applicationContext.filesDir.path
-        MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia.hook.glsl"))
+        MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia2x1-full.hook.glsl"))
+        MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia2x1-half.hook.glsl"))
         MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia2x2.hook.glsl"))
         MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia-over-under.hook.glsl"))
 
@@ -1220,10 +1225,15 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
             "Off" -> {
                 mPrevDesiredBacklightModeState = false;
             }
-            "2x1" -> {
+            "2x1f" -> {
                 mPrevDesiredBacklightModeState = true
                 // toggle 2x1
-                MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia.hook.glsl"))
+                MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x1-full.hook.glsl"))
+            }
+            "2x1h" -> {
+                mPrevDesiredBacklightModeState = true
+                // toggle 2x1
+                MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x1-half.hook.glsl"))
             }
             "2x2" -> {
                 mPrevDesiredBacklightModeState = true

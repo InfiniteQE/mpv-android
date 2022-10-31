@@ -115,6 +115,14 @@
             android:layout_height="wrap_content"
             android:text="@string/toggle_leia_2x1"
             android:textAllCaps="false" />
+<!--        <Button-->
+<!--            android:id="@+id/leiaBtnHBS"-->
+<!--            style="@style/Widget.AppCompat.Button.Borderless"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_weight="1"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="@string/toggle_leia_2x1_half"-->
+<!--            android:textAllCaps="false" />-->
         <Button
             android:id="@+id/leiaBtn2x2"
             style="@style/Widget.AppCompat.Button.Borderless"

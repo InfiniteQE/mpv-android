@@ -172,9 +172,10 @@
     <string name="nnf_name">Name</string>
     <string name="nnf_permission_external_write_denied">Permission to access file system denied</string>
     <string name="nnf_filename">Filename</string>
-    <string name="toggle_leia">Leia3D Off</string>
-    <string name="toggle_leia_2x2">Leia3D 2x2</string>
-    <string name="toggle_leia_2x1">Leia3D 2x1</string>
-    <string name="toggle_leia_OU">Leia3D OU Over(L)/Under(R)</string>
-    <string name="toggle_leia_UO">Leia3D UO Under(L)/Over(R)</string>
+    <string name="toggle_leia">3D Off</string>
+    <string name="toggle_leia_2x2">3D 2x2</string>
+    <string name="toggle_leia_2x1">3D SBS</string>
+    <string name="toggle_leia_2x1_half">3D HBS</string>
+    <string name="toggle_leia_OU">3D OU Over(L)/Under(R)</string>
+    <string name="toggle_leia_UO">3D UO Under(L)/Over(R)</string>
 </resources>
