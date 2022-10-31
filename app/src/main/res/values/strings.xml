@@ -179,6 +179,6 @@
     <string name="toggle_leia_2x2">3D 2x2</string>
     <string name="toggle_leia_2x1">3D SBS</string>
     <string name="toggle_leia_2x1_half">3D HBS</string>
-    <string name="toggle_leia_OU">3D OU Over(L)/Under(R)</string>
+    <string name="toggle_leia_OU">3D Over-Under</string>
     <string name="toggle_leia_UO">3D UO Under(L)/Over(R)</string>
 </resources>
