@@ -1,5 +1,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="seek_gesture_smooth"
+        android:title="@string/pref_seek_gesture_smooth_title" />
+
     <ListPreference
         android:defaultValue="@string/pref_gesture_horiz_default"
         android:key="gesture_horiz"
@@ -47,5 +52,9 @@
         android:entries="@array/tap_gestures_entries"
         android:entryValues="@array/tap_gestures_values"
         android:title="@string/pref_gesture_tap_right_title" />
+
+    <Preference
+        android:summary="@string/pref_gesture_custom_helptext"
+        android:title="" />
 
 </PreferenceScreen>
