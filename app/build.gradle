@@ -8,21 +8,49 @@ repositories {
     }
 }
 
+// Create a variable called keystorePropertiesFile, and initialize it to your
+// keystore.properties file, in the rootProject folder.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+
+// Initialize a new Properties() object called keystoreProperties.
+def keystoreProperties = new Properties()
+
+// Load your keystore.properties file into the keystoreProperties object.
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
 
     defaultConfig {
         buildToolsVersion "31.0.0"
         minSdkVersion 26
         // Do NOT bump this to 30 before figuring out the implications of scoped storage
-        targetSdkVersion 29
+        //noinspection ExpiringTargetSdkVersion
+        targetSdkVersion 30
         versionCode 24
-        versionName "2021-03-10-release"
+        versionName "2022-10-30-release"
         vectorDrawables.useSupportLibrary = true
 
         ndk.abiFilters = ["arm64-v8a"]
     }
 
+    signingConfigs {
+        config {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+        release {
+            signingConfig signingConfigs.debug
+        }
+    }
     sourceSets{
         main {
             jniLibs.srcDirs = [
