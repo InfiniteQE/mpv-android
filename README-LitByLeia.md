@@ -1,4 +1,5 @@
-# mpv for Android w/ LitByLeia Support
+# MPV 3D
+**mpv for Android w/ LitByLeia Support**
 
 This fork is intended to be used with LitByLeia devices such as the Lume Pad and the RED Hydrogen One
 
