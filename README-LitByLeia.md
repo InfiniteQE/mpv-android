@@ -1,4 +1,5 @@
-# mpv for Android w/ LitByLeia Support
+# MPV 3D
+**mpv for Android w/ LitByLeia Support**
 
 This fork is intended to be used with LitByLeia devices such as the Lume Pad and the RED Hydrogen One
 
@@ -34,7 +35,7 @@ Venmo: [https://venmo.com/jacobdowns3](https://venmo.com/jacobdowns3)
 
   a. download these 3 shader files to `/mpv` in the "External Storage" area of your Android device
     
-   i [app/src/main/assets/leia2x2.hook.glsl](app/src/main/assets/leia2x2.hook.glsl) 
+   i [app/src/main/assets/leia2x1-full.hook.glsl](app/src/main/assets/leia2x1-full.hook.glsl) 
     
    ii [app/src/main/assets/leia2x2.hook.glsl](app/src/main/assets/leia2x2.hook.glsl) 
     
