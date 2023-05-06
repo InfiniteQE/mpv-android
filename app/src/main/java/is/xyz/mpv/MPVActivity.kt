@@ -41,32 +41,14 @@ import androidx.core.view.WindowInsetsControllerCompat
 import java.io.File
 import java.lang.IllegalArgumentException
 import kotlin.math.roundToInt
-
-import com.leia.android.lights.LeiaDisplayManager
-import com.leia.android.lights.LeiaDisplayManager.BacklightMode
-import com.leia.android.lights.LeiaSDK
-import com.leia.android.lights.SimpleDisplayQuery
-import com.leia.android.lights.BacklightModeListener
-import com.leia.android.lights.LeiaDisplayManager.BacklightMode.MODE_2D
-import com.leia.android.lights.LeiaDisplayManager.BacklightMode.MODE_3D
-import java.io.FileOutputStream
-import java.io.File
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
-
 typealias ActivityResultCallback = (Int, Intent?) -> Unit
 typealias StateRestoreCallback = () -> Unit
 
-class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObserver, BacklightModeListener {
+class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObserver {
     // LitByLeia
-    private var mRenderModeIsLeia3d = false
     private var mPrevDesiredBacklightModeState = false
-    private val mExpectedBacklightMode: BacklightMode? = null
-    private var mBacklightHasShutDown = false
-    private val mIsDeviceCurrentlyInPortraitMode = false
-    private var mDisplayManager: LeiaDisplayManager? = null
-    private var mLeiaQuery: SimpleDisplayQuery? = null
+
+
 
     // for calls to eventUi() and eventPropertyUi()
     private val eventUiHandler = Handler(Looper.getMainLooper())
@@ -256,11 +238,6 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
 
     override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
-
-        // Leia Considerations
-        mLeiaQuery = SimpleDisplayQuery(this)
-        mDisplayManager = LeiaSDK.getDisplayManager(this)
-        mDisplayManager?.registerBacklightModeListener(this)
 
         // Do these here and not in MainActivity because mpv can be launched from a file browser
         Utils.copyAssets(this)
@@ -1226,9 +1203,10 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
 //                MenuItem(R.id.leiaBtnHBS) {
 //                    toggleLeiaMode(restoreState,"2x1h"); false
 //                },
-                MenuItem(R.id.leiaBtn2x2) {
+                // TODO: new api doesn't support 2x2, need to add a "LeiaQuiltView adapter first"
+                /*MenuItem(R.id.leiaBtn2x2) {
                     toggleLeiaMode(restoreState,"2x2"); false
-                },
+                },*/
                 MenuItem(R.id.leiaBtnOU) {
                     toggleLeiaMode(restoreState,"OU"); false
                 },
@@ -1271,11 +1249,13 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
     }
 
     private fun toggleLeiaMode(restoreState: StateRestoreCallback?, segment: String) {
-        val filesDir = applicationContext.filesDir.path
-        MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia2x1-full.hook.glsl"))
+        //val filesDir = applicationContext.filesDir.path
+
+        // i'll miss the days of a simple interlaced shader being the only thing needed :P
+        /*MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia2x1-full.hook.glsl"))
         MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia2x1-half.hook.glsl"))
         MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia2x2.hook.glsl"))
-        MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia-over-under.hook.glsl"))
+        MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia-over-under.hook.glsl"))*/
 
         when(segment){
             "Off" -> {
@@ -1284,22 +1264,22 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
             "2x1f" -> {
                 mPrevDesiredBacklightModeState = true
                 // toggle 2x1
-                MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x1-full.hook.glsl"))
+                //MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x1-full.hook.glsl"))
             }
             "2x1h" -> {
                 mPrevDesiredBacklightModeState = true
                 // toggle 2x1
-                MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x1-half.hook.glsl"))
+                //MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x1-half.hook.glsl"))
             }
             "2x2" -> {
                 mPrevDesiredBacklightModeState = true
                 // toggle 2x2
-                MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x2.hook.glsl"))
+                //MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x2.hook.glsl"))
             }
             "OU" -> {
                 mPrevDesiredBacklightModeState = true
                 // toggle OU
-                MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia-over-under.hook.glsl"))
+                //MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia-over-under.hook.glsl"))
             }
         }
         checkShouldToggle3D(mPrevDesiredBacklightModeState);
@@ -1871,34 +1851,12 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
         private const val RESULT_INTENT = "is.xyz.mpv.MPVActivity.result"
     }
 
-    /** BacklightModeListener Interface requirement  */
-    override fun onBacklightModeChanged(backlightMode: BacklightMode) {
-        //Log.e("EmulationActivity", "onBacklightModeChanged: callback received");
-        // Do something to remember the backlight is no longer on
-        // Later, we have to let the native side know this occurred.
-        if (mExpectedBacklightMode == MODE_3D &&
-            mExpectedBacklightMode != backlightMode
-        ) {
-            //Log.e("EmulationActivity", "onBacklightModeChanged: mBacklightHasShutDown = true;");
-            mBacklightHasShutDown = true
-        }
-    }
-
     fun Enable3D() {
-        mDisplayManager?.backlightMode = MODE_3D
+
     }
 
     fun Disable3D() {
-        mDisplayManager?.backlightMode = MODE_2D
-    }
 
-    private fun SetBacklightMode(mode: BacklightMode) {
-        mDisplayManager?.backlightMode = mode
-    }
-
-    fun HasBacklightShutdown(): Int {
-        //Log.e("EmulationActivity", "HasBacklightShutdown: mBacklightHasShutDown = " + mBacklightHasShutDown);
-        return if (mBacklightHasShutDown) 1 else 0
     }
 
     fun checkShouldToggle3D(desired_state: Boolean) {

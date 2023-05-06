@@ -1,5 +1,9 @@
 package `is`.xyz.mpv
 
+/**
+ * NOTE: this view was changed from SurfaceView to LeiaSurfaceViewAdapter for LP2 support
+ */
+
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
@@ -9,10 +13,11 @@ import android.os.Build
 import android.os.Environment
 import android.preference.PreferenceManager
 import android.view.*
+import com.simongellis.leia_adapter.LeiaSurfaceViewAdapter
 import kotlin.math.abs
 import kotlin.reflect.KProperty
 
-internal class MPVView(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs), SurfaceHolder.Callback {
+internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceViewAdapter(context, attrs), SurfaceHolder.Callback {
     fun initialize(configDir: String) {
         MPVLib.create(this.context)
         MPVLib.setOptionString("config", "yes")

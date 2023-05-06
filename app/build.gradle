@@ -16,16 +16,41 @@ def keystorePropertiesFile = rootProject.file("keystore.properties")
 // Initialize a new Properties() object called keystoreProperties.
 def keystoreProperties = new Properties()
 
+// Check if keystore.properties file exists, create it if not.
+if (!keystorePropertiesFile.exists()) {
+    try {
+        keystorePropertiesFile.createNewFile()
+        println 'Created new keystore.properties file.'
+    } catch (IOException e) {
+        println 'Warning: Failed to create keystore.properties file.'
+    }
+}
+
 // Load your keystore.properties file into the keystoreProperties object.
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+if (keystorePropertiesFile.exists()) {
+    try {
+        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    } catch (IOException e) {
+        println 'Warning: Failed to load keystore.properties file.'
+    }
+}
 
 android {
     namespace 'is.xyz.mpv'
     compileSdkVersion 33
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
     defaultConfig {
         buildToolsVersion "31.0.0"
-        minSdkVersion 21
+        minSdkVersion 30
         targetSdkVersion 31
         versionCode 31
         versionName "2023-05-06-release"
@@ -66,10 +91,6 @@ android {
         "default" {
             isDefault true
         }
-        api29 {
-            targetSdkVersion 29
-            versionNameSuffix "-oldapi"
-        }
     }
 
     buildFeatures {
@@ -106,7 +127,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.6.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
-
-    implementation 'com.leia:leiasdk:4.5.3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    implementation files("../leia-cnsdk/cnsdk.aar")
     implementation 'androidx.media:media:1.6.0'
 }
