@@ -2,7 +2,7 @@
 <resources>
     <!-- Arrays used by the UI -->
     <string-array name="aspect_ratio_names">
-        <item>Originale</item>
+        <item>Özgün</item>
         <item>16:9</item>
         <item>16:10</item>
         <item>4:3</item>
@@ -12,42 +12,42 @@
 
     <!-- Arrays used in settings -->
     <string-array name="background_play_entries">
-        <item>Mai</item>
-        <item>Solo file audio</item>
-        <item>Sempre (anche i file video)</item>
+        <item>Asla</item>
+        <item>Yalnızca ses dosyaları</item>
+        <item>Her zaman (Video dosyaları dahil)</item>
     </string-array>
     <string-array name="auto_rotation_entries">
-        <item>Automatico</item>
-        <item>Orizzontale predefinito</item>
-        <item>Verticale predefinito</item>
-        <item>Dispositivo</item>
+        <item>Otomatik</item>
+        <item>Öntanımlı Yatay</item>
+        <item>Öntanımlı Dikey</item>
+        <item>Aygıt</item>
     </string-array>
 
     <string-array name="deband_entries">
-        <item>Disattivato</item>
+        <item>Devre dışı</item>
         <item>CPU</item>
         <item>GPU</item>
     </string-array>
 
     <string-array name="stats_entries">
-        <item>Nessuna</item>
-        <item>Contatore FPS</item>
-        <item>stats.lua: Generale</item>
-        <item>stats.lua: Timings</item>
-        <item>stats.lua: Cache</item>
+        <item>Yok</item>
+        <item>FPS sayacı</item>
+        <item>stats.lua: Genel</item>
+        <item>stats.lua: Zamanlamalar</item>
+        <item>stats.lua: Önbellek</item>
     </string-array>
 
     <string-array name="gestures_entries">
-        <item>Nessuno</item>
-        <item>Cerca</item>
-        <item>Volume</item>
-        <item>Luminosità</item>
+        <item>Yok</item>
+        <item>Ara</item>
+        <item>Ses seviyesi</item>
+        <item>Parlaklık</item>
     </string-array>
 
     <string-array name="tap_gestures_entries">
-        <item>Nessuno</item>
-        <item>Cerca</item>
-        <item>Riproduci/Pausa</item>
-        <item>Personalizzato</item>
+        <item>Yok</item>
+        <item>İleri/Geri sar</item>
+        <item>Oynat/Duraklat</item>
+        <item>Özel</item>
     </string-array>
 </resources>

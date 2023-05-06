@@ -20,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.core.widget.addTextChangedListener
 import java.io.*
 import kotlin.math.abs
 
@@ -57,21 +58,18 @@ object Utils {
         }
     }
 
-    fun hasSoftwareKeys(activity: Activity): Boolean {
-        // Detect whether device has software home button
-        // https://stackoverflow.com/questions/14853039/#answer-14871974
-        val disp = activity.windowManager.defaultDisplay
-
-        val realMetrics = DisplayMetrics()
-        disp.getRealMetrics(realMetrics)
-        val realW = realMetrics.widthPixels
-        val realH = realMetrics.heightPixels
-        val metrics = DisplayMetrics()
-        disp.getMetrics(metrics)
-        val w = metrics.widthPixels
-        val h = metrics.heightPixels
-
-        return (realW - w > 0) or (realH - h > 0)
+    fun findRealPath(fd: Int): String? {
+        var ins: InputStream? = null
+        try {
+            val path = File("/proc/self/fd/${fd}").canonicalPath
+            if (!path.startsWith("/proc") && File(path).canRead()) {
+                // Double check that we can read it
+                ins = FileInputStream(path)
+                ins.read()
+                return path
+            }
+        } catch(e: Exception) { } finally { ins?.close() }
+        return null
     }
 
     fun convertDp(context: Context, dp: Float): Int {
@@ -336,17 +334,46 @@ object Utils {
         }
     }
 
-    class OpenUrlDialog {
-        private lateinit var editText: EditText
+    class OpenUrlDialog(context: Context) {
+        private val editText = EditText(context)
+        val builder = AlertDialog.Builder(context)
+        private lateinit var dialog: AlertDialog
 
-        fun getBuilder(context: Context): AlertDialog.Builder {
-            editText = EditText(context)
+        init {
             editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+            editText.addTextChangedListener {
+                val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                if (it.isNullOrEmpty()) {
+                    editText.error = null
+                    positiveButton.isEnabled = false
+                } else if (validate(it.toString())) {
+                    editText.error = null
+                    positiveButton.isEnabled = true
+                } else {
+                    editText.error = context.getString(R.string.uri_invalid_protocol)
+                    positiveButton.isEnabled = false
+                }
+            }
 
-            return AlertDialog.Builder(context).apply {
+            builder.apply {
                 setTitle(R.string.action_open_url)
                 setView(editText)
             }
+        }
+
+        private fun validate(text: String): Boolean {
+            val uri = Uri.parse(text)
+            return uri.isHierarchical && !uri.isRelative &&
+                    !(uri.host.isNullOrEmpty() && uri.path.isNullOrEmpty()) &&
+                    PROTOCOLS.contains(uri.scheme)
+        }
+
+        fun create(): AlertDialog {
+            dialog = builder.create()
+            editText.post { // initial state
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
+            }
+            return dialog
         }
 
         val text: String
@@ -363,10 +390,10 @@ object Utils {
 
             /* Audio */
             "3ga", "3ga2", "a52", "aac", "ac3", "adt", "adts", "aif", "aifc", "aiff", "alac",
-            "amr", "ape", "au", "awb", "dts", "dts-hd", "dtshd", "eac3", "f4a", "flac", "lpcm",
-            "m1a", "m2a", "m4a", "mk3d", "mka", "mlp", "mp+", "mp1", "mp2", "mp3", "mpa", "mpc",
-            "mpga", "mpp", "oga", "ogg", "opus", "pcm", "ra", "ram", "rax", "shn", "snd", "spx",
-            "tak", "thd", "thd+ac3", "true-hd", "truehd", "tta", "wav", "weba", "wma", "wv",
+            "amr", "ape", "au", "awb", "dsf", "dts", "dts-hd", "dtshd", "eac3", "f4a", "flac",
+            "lpcm", "m1a", "m2a", "m4a", "mk3d", "mka", "mlp", "mp+", "mp1", "mp2", "mp3", "mpa",
+            "mpc", "mpga", "mpp", "oga", "ogg", "opus", "pcm", "ra", "ram", "rax", "shn", "snd",
+            "spx", "tak", "thd", "thd+ac3", "true-hd", "truehd", "tta", "wav", "weba", "wma", "wv",
             "wvp",
 
             /* Video / Container */
@@ -383,5 +410,11 @@ object Utils {
             /* Picture */
             "apng", "bmp", "exr", "gif", "j2c", "j2k", "jfif", "jp2", "jpc", "jpe", "jpeg", "jpg",
             "jpg2", "png", "tga", "tif", "tiff", "webp",
+    )
+
+    // cf. AndroidManifest.xml and MPVActivity.resolveUri()
+    val PROTOCOLS = setOf(
+        "file", "content", "http", "https",
+        "rtmp", "rtmps", "rtp", "rtsp", "mms", "mmst", "mmsh", "tcp", "udp"
     )
 }

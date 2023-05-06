@@ -3,7 +3,6 @@ package `is`.xyz.mpv
 import `is`.xyz.filepicker.AbstractFilePickerFragment
 import android.Manifest
 import android.app.UiModeManager
-import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -14,16 +13,15 @@ import android.os.Environment
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.*
-import android.widget.Button
 import android.widget.PopupMenu
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
+import `is`.xyz.mpv.databinding.FragmentFilepickerChoiceBinding
 import java.io.File
 import java.io.FileFilter
 
@@ -33,7 +31,11 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
 
     private var lastSeenInsets: WindowInsets? = null
 
-    private var useBroadcast = false
+    private var documentOpener = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
+        it?.let { uri ->
+            onDocumentPicked(uri, false)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)
@@ -43,16 +45,13 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
         supportActionBar?.title = ""
 
         // The basic issue we have here is this: https://stackoverflow.com/questions/31190612/
-        // Some part of the view hierarchy swallows the insets during fragment transitions
+        // Some part of the view hierachy swallows the insets during fragment transitions
         // and it's impossible to invoke this calculation a second time (requestApplyInsets doesn't help).
         // For that reason I wrote this creative workaround, it works surprisingly well.
         findViewById<View>(R.id.fragment_container_view).setOnApplyWindowInsetsListener { _, insets ->
             lastSeenInsets = WindowInsets(insets)
             insets
         }
-
-        // Very wonderful workaround that uses a broadcast instead of result intent
-        useBroadcast = intent.getBooleanExtra("broadcast", false)
 
         when (intent.getIntExtra("skip", -1)) {
             URL_DIALOG -> {
@@ -73,6 +72,7 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
         // Ask the user what he wants
         val args = Bundle().apply {
             putString("title", intent.getStringExtra("title"))
+            putBoolean("allow_document", intent.getBooleanExtra("allow_document", false))
         }
         with (supportFragmentManager.beginTransaction()) {
             setReorderingAllowed(true)
@@ -264,14 +264,14 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
 
     private fun showUrlDialog() {
         Log.v(TAG, "FilePickerActivity: showing url dialog")
-        val helper = Utils.OpenUrlDialog()
-        with (helper.getBuilder(this)) {
-            setPositiveButton(R.string.dialog_ok) { _, _ ->
+        val helper = Utils.OpenUrlDialog(this)
+        with (helper) {
+            builder.setPositiveButton(R.string.dialog_ok) { _, _ ->
                 finishWithResult(RESULT_OK, helper.text)
             }
-            setNegativeButton(R.string.dialog_cancel) { dialog, _ -> dialog.cancel() }
-            setOnCancelListener { finishWithResult(RESULT_CANCELED) }
-            show()
+            builder.setNegativeButton(R.string.dialog_cancel) { dialog, _ -> dialog.cancel() }
+            builder.setOnCancelListener { finishWithResult(RESULT_CANCELED) }
+            create().show()
         }
     }
 
@@ -292,19 +292,14 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
     }
 
     private fun finishWithResult(code: Int, path: String? = null) {
-        Log.v(TAG, "FilePickerActivity: file picked \"$path\"")
-
-        val result = Intent()
-        if (path != null)
+        if (path != null) {
+            val result = Intent()
             result.putExtra("path", path)
-
-        if (useBroadcast && code != RESULT_CANCELED) {
-            result.action = BROADCAST_INTENT
-            LocalBroadcastManager.getInstance(this).sendBroadcast(result)
-            return
+            setResult(code, result)
+            Log.v(TAG, "FilePickerActivity: file picked \"$path\"")
+        } else {
+            setResult(code)
         }
-
-        setResult(code, result)
         finish()
     }
 
@@ -320,6 +315,8 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
     override fun onCancelled() = finishWithResult(RESULT_CANCELED)
 
     class ChoiceFragment : Fragment(R.layout.fragment_filepicker_choice) {
+        private lateinit var binding: FragmentFilepickerChoiceBinding
+
         private fun removeMyself() {
             with (requireActivity().supportFragmentManager.beginTransaction()) {
                 setReorderingAllowed(true)
@@ -329,16 +326,22 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
         }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            view.findViewById<TextView>(android.R.id.message).text =
-                requireArguments().getString("title")
-            view.findViewById<Button>(R.id.fileBtn).setOnClickListener {
+            binding = FragmentFilepickerChoiceBinding.bind(view)
+
+            binding.message.text = requireArguments().getString("title")
+            binding.fileBtn.setOnClickListener {
                 removeMyself()
                 (activity as FilePickerActivity).initFilePicker()
             }
-            view.findViewById<Button>(R.id.urlBtn).setOnClickListener {
+            binding.urlBtn.setOnClickListener {
                 // leave visible, dialog will exit anyway
                 (activity as FilePickerActivity).showUrlDialog()
             }
+            binding.docBtn.setOnClickListener {
+                (activity as FilePickerActivity).documentOpener.launch(arrayOf("*/*"))
+            }
+            if (!requireArguments().getBoolean("allow_document", false))
+                binding.docBtn.visibility = View.GONE
         }
     }
 
@@ -362,8 +365,5 @@ class FilePickerActivity : AppCompatActivity(), AbstractFilePickerFragment.OnFil
         const val URL_DIALOG = 0
         const val FILE_PICKER = 1
         const val DOC_PICKER = 2
-
-        // action of broadcast intent
-        const val BROADCAST_INTENT = "is.xyz.mpv.FILE_PICKED"
     }
 }
