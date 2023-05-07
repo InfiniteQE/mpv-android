@@ -5,6 +5,7 @@ package `is`.xyz.mpv
  */
 
 import android.content.Context
+import android.graphics.SurfaceTexture
 import android.util.AttributeSet
 import android.util.Log
 
@@ -13,11 +14,14 @@ import android.os.Build
 import android.os.Environment
 import android.preference.PreferenceManager
 import android.view.*
-import com.simongellis.leia_adapter.LeiaSurfaceViewAdapter
+import com.simongellis.leia.webxr.LeiaSurfaceView
 import kotlin.math.abs
 import kotlin.reflect.KProperty
+import com.simongellis.leia.webxr.LeiaTextureRenderer
 
-internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceViewAdapter(context, attrs), SurfaceHolder.Callback {
+internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(context, attrs), SurfaceHolder.Callback {
+    private var videoTexture: SurfaceTexture? = null
+    private val videoTransformMatrix = FloatArray(16)
     fun initialize(configDir: String) {
         MPVLib.create(this.context)
         MPVLib.setOptionString("config", "yes")
@@ -28,8 +32,35 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceViewA
         MPVLib.setOptionString("save-position-on-quit", "no")
         MPVLib.setOptionString("force-window", "no")
 
+        /*videoTexture = SurfaceTexture(LeiaTextureRenderer.generateTextureId()).apply {
+            setOnFrameAvailableListener {
+                addTexture(this, videoTransformMatrix)
+                this@MPVView.invalidate()
+            }
+        }*/
+
+
         holder.addCallback(this)
         observeProperties()
+    }
+
+    private val updateTextureRunnable = object : Runnable {
+        override fun run() {
+            updateTexture()
+            handler.postDelayed(this, 1000 / 60) // Update at 60 FPS
+        }
+    }
+
+    private fun startUpdatingTexture() {
+        handler.post(updateTextureRunnable)
+    }
+
+    private fun updateTexture() {
+        videoTexture = SurfaceTexture(0).also { videoTexture ->
+            MPVLib.setPropertyString("android-surface", Surface(videoTexture).toString())
+            videoTexture.getTransformMatrix(videoTransformMatrix)
+            addTexture(videoTexture, videoTransformMatrix)
+        }
     }
 
     private fun initOptions() {
@@ -211,7 +242,6 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceViewA
         for ((name, format) in p)
             MPVLib.observeProperty(name, format)
     }
-
     fun addObserver(o: MPVLib.EventObserver) {
         MPVLib.addObserver(o)
     }
@@ -391,6 +421,15 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceViewA
         // This forces mpv to render subs/osd/whatever into our surface even if it would ordinarily not
         MPVLib.setOptionString("force-window", "yes")
 
+        videoTexture = SurfaceTexture(0).also { videoTexture ->
+            MPVLib.setPropertyString("android-surface", Surface(videoTexture).toString())
+            addTexture(videoTexture, videoTransformMatrix)
+        }
+
+        startUpdatingTexture()
+
+
+
         if (filePath != null) {
             MPVLib.command(arrayOf("loadfile", filePath as String))
             filePath = null
@@ -402,9 +441,14 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceViewA
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         Log.w(TAG, "detaching surface")
+        handler.removeCallbacks(updateTextureRunnable)
+        videoTexture?.release()
+        videoTexture = null
+
         MPVLib.setPropertyString("vo", "null")
         MPVLib.setOptionString("force-window", "no")
         MPVLib.detachSurface()
+
     }
 
     companion object {
