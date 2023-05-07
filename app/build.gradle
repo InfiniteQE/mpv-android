@@ -79,7 +79,7 @@ android {
     sourceSets{
         main {
             jniLibs.srcDirs = [
-                    'src/main/libs',
+                    'src/main/jniLibs',
                     './../distribution/leia_sdk/lib'
             ]
             java.srcDirs = ['src']
