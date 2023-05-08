@@ -13,3 +13,4 @@ sdk
 keystore.properties
 app/release
 .DS_Store
+.history
