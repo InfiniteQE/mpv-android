@@ -38,6 +38,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.leia.sdk.LeiaSDK
 import java.io.File
 import java.lang.IllegalArgumentException
 import kotlin.math.roundToInt
@@ -47,7 +48,7 @@ typealias StateRestoreCallback = () -> Unit
 class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObserver {
     // LitByLeia
     private var mPrevDesiredBacklightModeState = false
-
+    private lateinit var sdk: LeiaSDK
 
 
     // for calls to eventUi() and eventPropertyUi()
@@ -238,6 +239,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
 
     override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
+
+        // Leia
+        InitLeia(this)
 
         // Do these here and not in MainActivity because mpv can be launched from a file browser
         Utils.copyAssets(this)
@@ -1851,12 +1855,20 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
         private const val RESULT_INTENT = "is.xyz.mpv.MPVActivity.result"
     }
 
-    fun Enable3D() {
+    fun InitLeia(context: Context){
+        val initArgs = LeiaSDK.InitArgs()
+        initArgs.platform.context = context.applicationContext
+        initArgs.enableFaceTracking = true
+        initArgs.requiresFaceTrackingPermissionCheck = false
+        sdk = LeiaSDK.createSDK(initArgs)
+    }
 
+    fun Enable3D() {
+        sdk.enableBacklight(true)
     }
 
     fun Disable3D() {
-
+        sdk.enableBacklight(false)
     }
 
     fun checkShouldToggle3D(desired_state: Boolean) {
