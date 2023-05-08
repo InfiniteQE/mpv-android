@@ -61,7 +61,7 @@ open class LeiaSurfaceView(context: Context, attrs: AttributeSet) : InterlacedSu
         })
     }
 
-    private fun resize(width: Int, height: Int) {
+    fun resize(width: Int, height: Int) {
         val surfaceTexture = backingTexture
         if (surfaceTexture == null || !asset.IsSurfaceValid()) {
             asset.CreateEmptySurfaceForPicture(width, height) {

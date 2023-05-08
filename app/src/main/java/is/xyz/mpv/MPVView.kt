@@ -21,7 +21,7 @@ import kotlin.reflect.KProperty
 
 internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(context, attrs), SurfaceHolder.Callback {
     private val mainSurfaceTexture = SurfaceTexture(false)
-    val mainSurface = Surface(mainSurfaceTexture)
+    private val mainSurface: Surface = Surface(mainSurfaceTexture)
     fun initialize(configDir: String) {
         MPVLib.create(this.context)
         MPVLib.setOptionString("config", "yes")
@@ -34,6 +34,8 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
 
         holder.addCallback(this)
         observeProperties()
+
+        // 
 
         // Leia Stuff
         val identity = FloatArray(16)
@@ -390,12 +392,16 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
     // Surface callbacks
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        Log.w(TAG, "MPVView surfaceChanged. w:${width} h:${height}")
         MPVLib.setPropertyString("android-surface-size", "${width}x$height")
+
+        // pass the change the mainSurface
+        resize(width, height)
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
-        Log.w(TAG, "attaching surface")
-        MPVLib.attachSurface(holder.surface)
+        Log.w(TAG, "MPVView surfaceCreated. attaching mainSurface to MPV...")
+        MPVLib.attachSurface(mainSurface) // WAS: holder.surface, changed to write to mainSurface instead
         // This forces mpv to render subs/osd/whatever into our surface even if it would ordinarily not
         MPVLib.setOptionString("force-window", "yes")
 
@@ -409,12 +415,11 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
-        Log.w(TAG, "detaching surface")
+        Log.w(TAG, "MPVView surfaceDestroyed")
 
         MPVLib.setPropertyString("vo", "null")
         MPVLib.setOptionString("force-window", "no")
         MPVLib.detachSurface()
-
     }
 
     companion object {
