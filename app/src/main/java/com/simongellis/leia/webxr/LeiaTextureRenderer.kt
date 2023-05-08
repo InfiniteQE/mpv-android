@@ -163,10 +163,12 @@ class LeiaTextureRenderer {
             varying vec2 v_TexCoord;
             uniform samplerExternalOES u_Texture;
             void main() {
-                gl_FragColor = texture2D(u_Texture, v_TexCoord);
+                // DEBUG: show red pixels
+                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                /*gl_FragColor = texture2D(u_Texture, v_TexCoord);
                 if (gl_FragColor.a < 0.1) {
                     discard;
-                }
+                }*/
             }
         """
 

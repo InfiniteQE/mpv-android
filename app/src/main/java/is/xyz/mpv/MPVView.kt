@@ -35,9 +35,9 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
         holder.addCallback(this)
         observeProperties()
 
-        // 
-
         // Leia Stuff
+        mainSurfaceTexture.setDefaultBufferSize(2560,1600)
+        resize(2560, 1600)
         val identity = FloatArray(16)
         Matrix.setIdentityM(identity, 0)
         addTexture(mainSurfaceTexture, identity)
