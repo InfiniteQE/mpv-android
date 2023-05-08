@@ -1,7 +1,7 @@
 package `is`.xyz.mpv
 
 /**
- * NOTE: this view was changed from SurfaceView to LeiaSurfaceViewAdapter for LP2 support
+ * NOTE: this view was changed from SurfaceView to LeiaSurfaceView for LP2 support
  */
 
 import android.content.Context
@@ -17,11 +17,9 @@ import android.view.*
 import com.simongellis.leia.webxr.LeiaSurfaceView
 import kotlin.math.abs
 import kotlin.reflect.KProperty
-import com.simongellis.leia.webxr.LeiaTextureRenderer
 
 internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(context, attrs), SurfaceHolder.Callback {
-    private var videoTexture: SurfaceTexture? = null
-    private val videoTransformMatrix = FloatArray(16)
+
     fun initialize(configDir: String) {
         MPVLib.create(this.context)
         MPVLib.setOptionString("config", "yes")
@@ -31,14 +29,6 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
         // certain options are hardcoded:
         MPVLib.setOptionString("save-position-on-quit", "no")
         MPVLib.setOptionString("force-window", "no")
-
-        /*videoTexture = SurfaceTexture(LeiaTextureRenderer.generateTextureId()).apply {
-            setOnFrameAvailableListener {
-                addTexture(this, videoTransformMatrix)
-                this@MPVView.invalidate()
-            }
-        }*/
-
 
         holder.addCallback(this)
         observeProperties()
@@ -53,14 +43,6 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
 
     private fun startUpdatingTexture() {
         handler.post(updateTextureRunnable)
-    }
-
-    private fun updateTexture() {
-        videoTexture = SurfaceTexture(0).also { videoTexture ->
-            MPVLib.setPropertyString("android-surface", Surface(videoTexture).toString())
-            videoTexture.getTransformMatrix(videoTransformMatrix)
-            addTexture(videoTexture, videoTransformMatrix)
-        }
     }
 
     private fun initOptions() {
@@ -426,7 +408,8 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
             addTexture(videoTexture, videoTransformMatrix)
         }
 
-        startUpdatingTexture()
+        // Testing using onDrawFrame instead of this loop hack...
+        //startUpdatingTexture()
 
 
 
