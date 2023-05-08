@@ -34,17 +34,6 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
         observeProperties()
     }
 
-    private val updateTextureRunnable = object : Runnable {
-        override fun run() {
-            updateTexture()
-            handler.postDelayed(this, 1000 / 60) // Update at 60 FPS
-        }
-    }
-
-    private fun startUpdatingTexture() {
-        handler.post(updateTextureRunnable)
-    }
-
     private fun initOptions() {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.context)
 
@@ -403,16 +392,6 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
         // This forces mpv to render subs/osd/whatever into our surface even if it would ordinarily not
         MPVLib.setOptionString("force-window", "yes")
 
-        videoTexture = SurfaceTexture(0).also { videoTexture ->
-            MPVLib.setPropertyString("android-surface", Surface(videoTexture).toString())
-            addTexture(videoTexture, videoTransformMatrix)
-        }
-
-        // Testing using onDrawFrame instead of this loop hack...
-        //startUpdatingTexture()
-
-
-
         if (filePath != null) {
             MPVLib.command(arrayOf("loadfile", filePath as String))
             filePath = null
@@ -424,9 +403,6 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         Log.w(TAG, "detaching surface")
-        handler.removeCallbacks(updateTextureRunnable)
-        videoTexture?.release()
-        videoTexture = null
 
         MPVLib.setPropertyString("vo", "null")
         MPVLib.setOptionString("force-window", "no")
