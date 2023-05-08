@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.SurfaceTexture
 import android.opengl.GLES20.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Surface
 import androidx.core.view.doOnLayout
 import com.leia.sdk.views.InputViewsAsset
@@ -31,6 +32,7 @@ open class LeiaSurfaceView(context: Context, attrs: AttributeSet) : InterlacedSu
     }
 
     override fun setRenderer(renderer: Renderer) {
+        Log.i("LeiaSurfaceView", "LeiaSurfaceView.setRenderer")
         var framebuffer = -1
         super.setRenderer(object : Renderer {
             override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
@@ -47,6 +49,7 @@ open class LeiaSurfaceView(context: Context, attrs: AttributeSet) : InterlacedSu
             }
 
             override fun onDrawFrame(gl: GL10) {
+                Log.i("LeiaSurfaceView", "LeiaSurfaceView.onDrawFrame valid: ${asset.IsSurfaceValid()}")
                 if (asset.IsSurfaceValid()) {
                     glBindTexture(GL_TEXTURE_2D, asset.GetSurfaceId())
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null)
@@ -65,6 +68,7 @@ open class LeiaSurfaceView(context: Context, attrs: AttributeSet) : InterlacedSu
         val surfaceTexture = backingTexture
         if (surfaceTexture == null || !asset.IsSurfaceValid()) {
             asset.CreateEmptySurfaceForPicture(width, height) {
+                Log.i("LeiaSurfaceView", "LeiaSurfaceView.resize: $it")
                 backingTexture = it
                 surface = Surface(it)
             }
