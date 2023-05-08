@@ -23,10 +23,12 @@ class LeiaTextureRenderer {
     private var texLocation = -1
 
     fun addTexture(texture: SurfaceTexture, transform: FloatArray) {
+        Log.i(TAG, "addingTexture")
         textureHolders.add(TextureHolder(texture, transform))
     }
 
     fun onSurfaceCreated() {
+        Log.i(TAG, "onSurfaceCreated")
         val textureIds = IntArray(textureHolders.size)
         glGenTextures(textureIds.size, textureIds, 0)
         textureHolders.forEachIndexed { index, textureHolder ->
@@ -48,10 +50,12 @@ class LeiaTextureRenderer {
     }
 
     fun onSurfaceChanged(width: Int, height: Int) {
+        Log.i(TAG, "onSurfaceChanged")
         size = Size(width, height)
     }
 
     fun onDrawFrame() {
+        Log.i(TAG, "onDrawFrame")
         glViewport(0, 0, size.width, size.height)
         logError("glViewport")
         glUseProgram(program)

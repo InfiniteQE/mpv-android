@@ -6,6 +6,7 @@ package `is`.xyz.mpv
 
 import android.content.Context
 import android.graphics.SurfaceTexture
+import android.opengl.Matrix
 import android.util.AttributeSet
 import android.util.Log
 
@@ -19,7 +20,8 @@ import kotlin.math.abs
 import kotlin.reflect.KProperty
 
 internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(context, attrs), SurfaceHolder.Callback {
-
+    private val mainSurfaceTexture = SurfaceTexture(false)
+    val mainSurface = Surface(mainSurfaceTexture)
     fun initialize(configDir: String) {
         MPVLib.create(this.context)
         MPVLib.setOptionString("config", "yes")
@@ -32,6 +34,11 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
 
         holder.addCallback(this)
         observeProperties()
+
+        // Leia Stuff
+        val identity = FloatArray(16)
+        Matrix.setIdentityM(identity, 0)
+        addTexture(mainSurfaceTexture, identity)
     }
 
     private fun initOptions() {
