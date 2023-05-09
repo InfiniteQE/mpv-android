@@ -49,6 +49,8 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
     // LitByLeia
     private var mPrevDesiredBacklightModeState = false
     private lateinit var sdk: LeiaSDK
+    // needed so we can forward Pause/Resume
+    private lateinit var myView: MPVView
 
 
     // for calls to eventUi() and eventPropertyUi()
@@ -250,6 +252,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
         binding = PlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Leia
+        myView = findViewById(R.id.player)
+
         // Init controls to be hidden and view fullscreen
         hideControls()
 
@@ -391,6 +396,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
     }
 
     override fun onPause() {
+
+        myView.onPause()
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (isInMultiWindowMode || isInPictureInPictureMode) {
                 Log.v(TAG, "Going into multi-window mode (PiP=$isInPictureInPictureMode)")
@@ -470,6 +478,8 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
     }
 
     override fun onResume() {
+        myView.onResume()
+
         // If we weren't actually in the background (e.g. multi window mode), don't reinitialize stuff
         if (activityIsForeground) {
             super.onResume()

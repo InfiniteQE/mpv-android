@@ -397,11 +397,17 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
 
         // pass the change the mainSurface
         resize(width, height)
+
+        super.surfaceChanged(holder, format, width, height)
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         Log.w(TAG, "MPVView surfaceCreated. attaching mainSurface to MPV...")
-        MPVLib.attachSurface(mainSurface) // WAS: holder.surface, changed to write to mainSurface instead
+
+        //MPVLib.attachSurface(holder.surface)
+        // WAS: holder.surface, changed to write to mainSurface instead
+        MPVLib.attachSurface(mainSurface)
+
         // This forces mpv to render subs/osd/whatever into our surface even if it would ordinarily not
         MPVLib.setOptionString("force-window", "yes")
 
@@ -412,6 +418,8 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
             // We disable video output when the context disappears, enable it back
             MPVLib.setPropertyString("vo", "gpu")
         }
+
+        super.surfaceCreated(holder)
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
@@ -420,6 +428,8 @@ internal class MPVView(context: Context, attrs: AttributeSet) : LeiaSurfaceView(
         MPVLib.setPropertyString("vo", "null")
         MPVLib.setOptionString("force-window", "no")
         MPVLib.detachSurface()
+
+        super.surfaceDestroyed(holder)
     }
 
     companion object {
