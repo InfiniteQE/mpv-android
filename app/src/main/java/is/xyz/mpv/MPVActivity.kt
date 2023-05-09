@@ -1224,6 +1224,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
                 MenuItem(R.id.leiaBtnOU) {
                     toggleLeiaMode(restoreState,"OU"); false
                 },
+                MenuItem(R.id.leiaBtnSwap) {
+                    toggleLeiaMode(restoreState, "Swap"); false
+                },
                 MenuItem(R.id.orientationBtn) { this.cycleOrientation(); true }
         )
 
@@ -1298,6 +1301,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
                 // toggle OU
                 myView.setOverUnder(true)
                 //MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia-over-under.hook.glsl"))
+            }
+            "Swap" -> {
+                myView.setSwapImages(true)
             }
         }
         checkShouldToggle3D(mPrevDesiredBacklightModeState);

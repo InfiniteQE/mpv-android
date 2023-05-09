@@ -122,6 +122,14 @@
             android:layout_height="wrap_content"
             android:text="@string/toggle_leia_OU"
             android:textAllCaps="false" />
+        <Button
+            android:id="@+id/leiaBtnSwap"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/toggle_leia_Cross"
+            android:textAllCaps="false" />
     </TableRow>
 
     <Button
