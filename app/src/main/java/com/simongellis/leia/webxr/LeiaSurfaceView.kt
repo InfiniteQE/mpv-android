@@ -31,6 +31,14 @@ open class LeiaSurfaceView(context: Context, attrs: AttributeSet) : InterlacedSu
         textureRenderer.addTexture(texture, transform)
     }
 
+    fun setSwapImages(value: Boolean){
+        textureRenderer.setSwapImages(value)
+    }
+
+    fun setOverUnder(value: Boolean){
+        textureRenderer.setOverUnder(value)
+    }
+
     override fun setRenderer(renderer: Renderer) {
         Log.i("LeiaSurfaceView", "LeiaSurfaceView.setRenderer")
         var framebuffer = -1

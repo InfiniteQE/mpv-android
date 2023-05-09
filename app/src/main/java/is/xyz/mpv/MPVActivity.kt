@@ -1271,6 +1271,9 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
         MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia2x2.hook.glsl"))
         MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia-over-under.hook.glsl"))*/
 
+        myView.setOverUnder(false)
+        myView.setSwapImages(false)
+
         when(segment){
             "Off" -> {
                 mPrevDesiredBacklightModeState = false;
@@ -1293,6 +1296,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
             "OU" -> {
                 mPrevDesiredBacklightModeState = true
                 // toggle OU
+                myView.setOverUnder(true)
                 //MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia-over-under.hook.glsl"))
             }
         }

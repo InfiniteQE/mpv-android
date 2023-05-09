@@ -15,12 +15,24 @@ class LeiaTextureRenderer {
 
     private val textureHolders = mutableListOf<TextureHolder>()
     private var size = Size(640, 480)
+    private var overUnder = false
+    private var swapImages = false
 
     private var program = -1
     private var posLocation = -1
     private var texCoordLocation = -1
     private var mvLocation = -1
     private var texLocation = -1
+    private var overUnderLocation = -1
+    private var swapImagesLocation = -1
+
+    fun setOverUnder(value: Boolean) {
+        overUnder = value
+    }
+
+    fun setSwapImages(value: Boolean) {
+        swapImages = value
+    }
 
     fun addTexture(texture: SurfaceTexture, transform: FloatArray) {
         Log.i(TAG, "addingTexture")
@@ -85,6 +97,10 @@ class LeiaTextureRenderer {
         logError("bind tex location")
         glUniformMatrix4fv(mvLocation, 1, false, mv, 0)
         logError("bind mv location")
+        glUniform1i(overUnderLocation, if (overUnder) 1 else 0)
+        //logError("bind overUnder location")
+        glUniform1i(swapImagesLocation, if (swapImages) 1 else 0)
+        //logError("bind swapImages location")
 
         glVertexAttribPointer(
                 posLocation,
@@ -162,8 +178,27 @@ class LeiaTextureRenderer {
             precision mediump float;
             varying vec2 v_TexCoord;
             uniform samplerExternalOES u_Texture;
+            uniform int u_OverUnder;
+            uniform int u_SwapImages;
             void main() {
-                gl_FragColor = texture2D(u_Texture, v_TexCoord);
+                vec2 modifiedTexCoord = v_TexCoord;
+                if (u_OverUnder == 1) {
+                    if (v_TexCoord.x < 0.5 || (v_TexCoord.x >= 0.5 && u_SwapImages == 1)) {
+                        // left half; sample from top
+                        modifiedTexCoord.y *= 0.5;
+                    } else if (v_TexCoord.x >= 0.5 || (v_TexCoord.x < 0.5 && u_SwapImages == 1)){
+                        // right half; sample from bottom
+                        modifiedTexCoord.x = (modifiedTexCoord.x - 0.5) * 2.0; 
+                        modifiedTexCoord.y = modifiedTexCoord.y * 0.5 + 0.5;
+                    }
+                }else{
+                    if (u_SwapImages == 1) {
+                        // shift and wrap around to swap images
+                        modifiedTexCoord.x = mod(modifiedTexCoord.x + 0.5, 1.0);
+                    }
+                }
+                
+                gl_FragColor = texture2D(u_Texture, modifiedTexCoord);
                 if (gl_FragColor.a < 0.1) {
                     discard;
                 }
