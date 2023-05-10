@@ -235,7 +235,13 @@ class LeiaTextureRenderer {
                             modifiedTexCoord.y = min(modifiedTexCoord.y, 1.0);
                         }
                     }
-                }                
+                }else{
+                    // SBS
+                    if(u_SwapImages == 1){
+                        // shift and wrap around to swap images
+                        modifiedTexCoord.x = mod(modifiedTexCoord.x + 0.5, 1.0);
+                    }
+                }
                 
                 gl_FragColor = texture2D(u_Texture, modifiedTexCoord);
                 if (gl_FragColor.a < 0.1) {
