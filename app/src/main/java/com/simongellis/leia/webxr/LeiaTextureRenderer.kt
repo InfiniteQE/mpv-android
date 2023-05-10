@@ -106,6 +106,12 @@ class LeiaTextureRenderer {
         logError("glActiveTexture")
         glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId)
         logError("glBindTexture")
+
+        // Set texture parameters to clamp to border and specify black border color
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+
+
         glUniform1i(texLocation, 0)
         logError("bind tex location")
         glUniformMatrix4fv(mvLocation, 1, false, mv, 0)
@@ -223,6 +229,10 @@ class LeiaTextureRenderer {
                             // LEFT EYE OUTPUT (from top of input)
                             modifiedTexCoord.y *= 0.5;
                             modifiedTexCoord.y += 0.05;
+                            
+                            // clamp between 0 and 1
+                            modifiedTexCoord.y = max(modifiedTexCoord.y, 0.0);
+                            modifiedTexCoord.y = min(modifiedTexCoord.y, 1.0);
                         }
                     }
                 }                
