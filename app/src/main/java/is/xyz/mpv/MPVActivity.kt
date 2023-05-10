@@ -1274,25 +1274,27 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
         MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia2x2.hook.glsl"))
         MPVLib.command(arrayOf("change-list", "glsl-shaders", "remove", "${filesDir}/leia-over-under.hook.glsl"))*/
 
-        myView.setOverUnder(false)
-        myView.setSwapImages(false)
-
         when(segment){
             "Off" -> {
                 mPrevDesiredBacklightModeState = false;
+                myView.setOverUnder(false)
+                //myView.setSwapImages(false)
             }
             "2x1f" -> {
                 mPrevDesiredBacklightModeState = true
+                myView.setOverUnder(false)
                 // toggle 2x1
                 //MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x1-full.hook.glsl"))
             }
             "2x1h" -> {
                 mPrevDesiredBacklightModeState = true
+                myView.setOverUnder(false)
                 // toggle 2x1
                 //MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x1-half.hook.glsl"))
             }
             "2x2" -> {
                 mPrevDesiredBacklightModeState = true
+                myView.setOverUnder(false)
                 // toggle 2x2
                 //MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia2x2.hook.glsl"))
             }
@@ -1303,7 +1305,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
                 //MPVLib.command(arrayOf("change-list", "glsl-shaders", "append", "${filesDir}/leia-over-under.hook.glsl"))
             }
             "Swap" -> {
-                myView.setSwapImages(true)
+                myView.setSwapImages(!myView.getSwapImages())
             }
         }
         checkShouldToggle3D(mPrevDesiredBacklightModeState);
@@ -1885,10 +1887,12 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
 
     fun Enable3D() {
         sdk.enableBacklight(true)
+        sdk.enableFaceTracking(true)
     }
 
     fun Disable3D() {
         sdk.enableBacklight(false)
+        sdk.enableFaceTracking(false)
     }
 
     fun checkShouldToggle3D(desired_state: Boolean) {

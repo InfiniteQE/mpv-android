@@ -28,11 +28,11 @@ object Utils {
     fun copyAssets(context: Context) {
         val assetManager = context.assets
         val files = arrayOf("subfont.ttf",
-            "cacert.pem",
+            "cacert.pem")/*,
             "leia2x1-full.hook.glsl",
             "leia2x1-half.hook.glsl",
             "leia2x2.hook.glsl",
-            "leia-over-under.hook.glsl")
+            "leia-over-under.hook.glsl")*/
         val configDir = context.filesDir.path
         for (filename in files) {
             var ins: InputStream? = null

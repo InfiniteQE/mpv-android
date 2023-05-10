@@ -35,8 +35,16 @@ open class LeiaSurfaceView(context: Context, attrs: AttributeSet) : InterlacedSu
         textureRenderer.setSwapImages(value)
     }
 
+    fun getSwapImages(): Boolean{
+        return textureRenderer.getSwapImages()
+    }
+
     fun setOverUnder(value: Boolean){
         textureRenderer.setOverUnder(value)
+    }
+
+    fun getOverUnder(): Boolean{
+        return textureRenderer.getOverUnder()
     }
 
     override fun setRenderer(renderer: Renderer) {
@@ -57,7 +65,7 @@ open class LeiaSurfaceView(context: Context, attrs: AttributeSet) : InterlacedSu
             }
 
             override fun onDrawFrame(gl: GL10) {
-                Log.i("LeiaSurfaceView", "LeiaSurfaceView.onDrawFrame valid: ${asset.IsSurfaceValid()}")
+                //Log.i("LeiaSurfaceView", "LeiaSurfaceView.onDrawFrame valid: ${asset.IsSurfaceValid()}")
                 if (asset.IsSurfaceValid()) {
                     glBindTexture(GL_TEXTURE_2D, asset.GetSurfaceId())
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null)

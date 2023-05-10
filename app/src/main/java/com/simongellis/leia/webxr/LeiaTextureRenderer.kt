@@ -15,6 +15,7 @@ class LeiaTextureRenderer {
 
     private val textureHolders = mutableListOf<TextureHolder>()
     private var size = Size(640, 480)
+    private var textureSize = Size(640, 480)
     private var overUnder = false
     private var swapImages = false
 
@@ -30,8 +31,16 @@ class LeiaTextureRenderer {
         overUnder = value
     }
 
+    fun getOverUnder(): Boolean {
+        return overUnder
+    }
+
     fun setSwapImages(value: Boolean) {
         swapImages = value
+    }
+
+    fun getSwapImages(): Boolean {
+        return swapImages
     }
 
     fun addTexture(texture: SurfaceTexture, transform: FloatArray) {
@@ -59,6 +68,10 @@ class LeiaTextureRenderer {
         texCoordLocation = glGetAttribLocation(program, "a_TexCoord")
         mvLocation = glGetUniformLocation(program, "u_MV")
         texLocation = glGetUniformLocation(program, "u_Texture")
+        overUnderLocation = glGetUniformLocation(program, "u_OverUnder")
+        swapImagesLocation = glGetUniformLocation(program, "u_SwapImages")
+
+        Log.i(TAG, "swapImagesLocation: $swapImagesLocation")
     }
 
     fun onSurfaceChanged(width: Int, height: Int) {
@@ -97,10 +110,10 @@ class LeiaTextureRenderer {
         logError("bind tex location")
         glUniformMatrix4fv(mvLocation, 1, false, mv, 0)
         logError("bind mv location")
-        glUniform1i(overUnderLocation, if (overUnder) 1 else 0)
-        //logError("bind overUnder location")
-        glUniform1i(swapImagesLocation, if (swapImages) 1 else 0)
-        //logError("bind swapImages location")
+        glUniform1i(overUnderLocation, (if (overUnder) 1 else 0))
+        logError("bind overUnder location")
+        glUniform1i(swapImagesLocation, (if (swapImages) 1 else 0))
+        logError("bind swapImages location")
 
         glVertexAttribPointer(
                 posLocation,
@@ -129,6 +142,7 @@ class LeiaTextureRenderer {
     }
 
     private fun logError(message: String) {
+        return;
         var error = glGetError()
         while (error != 0) {
             Log.i(TAG, "${error.toString(16)}: $message")
@@ -181,22 +195,37 @@ class LeiaTextureRenderer {
             uniform int u_OverUnder;
             uniform int u_SwapImages;
             void main() {
-                vec2 modifiedTexCoord = v_TexCoord;
+                vec2 modifiedTexCoord = vec2(v_TexCoord.x, v_TexCoord.y);
+                
                 if (u_OverUnder == 1) {
-                    if (v_TexCoord.x < 0.5 || (v_TexCoord.x >= 0.5 && u_SwapImages == 1)) {
-                        // left half; sample from top
-                        modifiedTexCoord.y *= 0.5;
-                    } else if (v_TexCoord.x >= 0.5 || (v_TexCoord.x < 0.5 && u_SwapImages == 1)){
-                        // right half; sample from bottom
-                        modifiedTexCoord.x = (modifiedTexCoord.x - 0.5) * 2.0; 
-                        modifiedTexCoord.y = modifiedTexCoord.y * 0.5 + 0.5;
+                    modifiedTexCoord.x = modifiedTexCoord.x * 2.0;
+                    
+                    
+                    if (u_SwapImages == 1){
+                        if(v_TexCoord.x > 0.5){
+                            modifiedTexCoord.x -= 1.0;
+                            // RIGHT EYE OUTPUT (from bottom of input)
+                            
+                            modifiedTexCoord.y *= 0.5;
+                            modifiedTexCoord.y += 0.05;
+                        }else{
+                            // LEFT EYE OUTPUT (from top of input)
+                            modifiedTexCoord.y = modifiedTexCoord.y * 0.5;
+                            modifiedTexCoord.y += 0.5;
+                        }
+                    }else{
+                        if(v_TexCoord.x > 0.5){
+                            modifiedTexCoord.x -= 1.0;
+                            // RIGHT EYE OUTPUT (from bottom of input)
+                            modifiedTexCoord.y = modifiedTexCoord.y * 0.5;
+                            modifiedTexCoord.y += 0.5;
+                        }else{
+                            // LEFT EYE OUTPUT (from top of input)
+                            modifiedTexCoord.y *= 0.5;
+                            modifiedTexCoord.y += 0.05;
+                        }
                     }
-                }else{
-                    if (u_SwapImages == 1) {
-                        // shift and wrap around to swap images
-                        modifiedTexCoord.x = mod(modifiedTexCoord.x + 0.5, 1.0);
-                    }
-                }
+                }                
                 
                 gl_FragColor = texture2D(u_Texture, modifiedTexCoord);
                 if (gl_FragColor.a < 0.1) {
